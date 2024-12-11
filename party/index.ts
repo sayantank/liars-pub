@@ -1,3 +1,4 @@
+import { MAX_PLAYERS } from "@/app/consts";
 import type { Bar } from "@/app/types";
 import type * as Party from "partykit/server";
 
@@ -9,7 +10,7 @@ export default class Server implements Party.Server {
 	async onRequest(req: Party.Request) {
 		if (req.method === "POST") {
 			const bar = (await req.json()) as Bar;
-			this.bar = { ...bar, messages: [] };
+			this.bar = bar;
 			this.saveBar();
 		}
 
@@ -24,16 +25,31 @@ export default class Server implements Party.Server {
 	}
 
 	onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
-		// A websocket just connected!
-		console.log(
-			`Connected:
-  id: ${conn.id}
-  room: ${this.room.id}
-  url: ${new URL(ctx.request.url).pathname}`,
-		);
+		const url = new URL(ctx.request.url);
+		const playerId = url.searchParams.get("playerId");
 
-		// let's send a message to the connection
-		conn.send("hello from server");
+		console.log("playerId", { playerId, length: this.bar?.players.length });
+
+		// If the player is not already in the bar, add them
+		if (
+			playerId != null &&
+			this.bar != null &&
+			this.bar.players.length < MAX_PLAYERS &&
+			this.bar.players.find((p) => p.id === playerId) == null
+		) {
+			this.bar.players.push({
+				id: playerId,
+			});
+			this.room.broadcast(JSON.stringify({ bar: this.bar }));
+			this.saveBar();
+		}
+
+		// A websocket just connected!
+		console.log("Connected", {
+			id: conn.id,
+			room: this.room.id,
+			url: new URL(ctx.request.url).pathname,
+		});
 	}
 
 	async onMessage(message: string) {
@@ -42,9 +58,8 @@ export default class Server implements Party.Server {
 		const event = JSON.parse(message);
 		if (event.type === "message") {
 			const message = event.message;
-			this.bar.messages.push(message);
 
-			this.room.broadcast(JSON.stringify(this.bar));
+			this.room.broadcast(JSON.stringify({ bar: this.bar }));
 			this.saveBar();
 		}
 	}

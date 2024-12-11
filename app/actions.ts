@@ -7,12 +7,21 @@ import { redirect } from "next/navigation";
 const randomId = () => Math.random().toString(36).substring(2, 10);
 
 export async function createBar(formData: FormData) {
-	const title = formData.get("title")?.toString() ?? "Anonymous bar";
-
 	const id = randomId();
+	const createdBy = formData.get("createdBy")?.toString();
+
+	if (createdBy == null) {
+		console.error("createdBy is null");
+		redirect("/");
+	}
+
 	const bar: Bar = {
 		id,
-		messages: [],
+		players: [
+			{
+				id: createdBy,
+			},
+		],
 	};
 
 	await fetch(`${PARTYKIT_URL}/party/${id}`, {

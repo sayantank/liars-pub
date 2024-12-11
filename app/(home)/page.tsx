@@ -1,11 +1,12 @@
-import { createBar } from "@/actions/bar";
+import { createBar } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { auth, signIn, signOut } from "@/auth";
 
 export default async function Home() {
 	const session = await auth();
+	const user = session?.user;
 
-	const isSignedIn = session?.user != null;
+	const isSignedIn = user != null;
 
 	return (
 		<div className="flex flex-col items-center space-y-4">
@@ -13,6 +14,7 @@ export default async function Home() {
 			{isSignedIn ? (
 				<>
 					<form action={createBar}>
+						<input type="hidden" name="createdBy" value={user.id} />
 						<Button type="submit">Create Bar</Button>
 					</form>
 					<form

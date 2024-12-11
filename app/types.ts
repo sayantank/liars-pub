@@ -1,9 +1,8 @@
 export type Bar = {
 	id: string;
-	messages: string[];
+	players: Player[];
 };
 
 export type Player = {
 	id: string;
-	name: string;
 };
