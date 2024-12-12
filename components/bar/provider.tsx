@@ -1,19 +1,32 @@
 "use client";
 
+import { createContext, useContext } from "react";
+import type PartySocket from "partysocket";
 import { PARTYKIT_HOST } from "@/app/env";
 import type { Hand, Bar } from "@/app/types";
 import usePartySocket from "partysocket/react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
-import { MAX_PLAYERS } from "@/app/consts";
-import { Button } from "./ui/button";
 import type { StartGameMessage } from "@/game/messages";
 
-export default function BarComponent({ barId }: { barId: string }) {
+export type BarContextType = {
+	bar: Bar | null;
+	hand: Hand | null;
+	socket: PartySocket;
+	socketState: PartySocket["readyState"];
+	startGame: () => void;
+};
+
+const BarContext = createContext<BarContextType | null>(null);
+
+export default function BarProvider({
+	children,
+	barId,
+}: { children: React.ReactNode; barId: string }) {
 	const { data: session } = useSession();
 	const user = session?.user;
-	if (user == null) {
+	if (user == null || user.id == null) {
 		redirect("/");
 	}
 
@@ -53,37 +66,26 @@ export default function BarComponent({ barId }: { barId: string }) {
 		};
 	}, [socket]);
 
-	async function handleStartGame() {
+	async function startGame() {
 		const message: StartGameMessage = {
 			type: "startGame",
 		};
 		socket.send(JSON.stringify(message));
 	}
 
-	if (socketState === socket.CONNECTING) {
-		return <p>Connecting...</p>;
-	}
-
-	if (bar == null) {
-		return null;
-	}
-
 	return (
-		<div className="flex flex-col space-y-4 items-center">
-			<h1 className="text-lg">Bar {barId}</h1>
-			<p>Players: {bar.players.length}</p>
-
-			{!bar.isStarted && (
-				<Button
-					type="button"
-					onClick={handleStartGame}
-					disabled={bar.players.length !== MAX_PLAYERS}
-				>
-					Start Game
-				</Button>
-			)}
-
-			{bar.isStarted && <code>{JSON.stringify(hand?.cards, null, 2)}</code>}
-		</div>
+		<BarContext.Provider value={{ bar, hand, socket, socketState, startGame }}>
+			{children}
+		</BarContext.Provider>
 	);
+}
+
+export function useBar() {
+	const context = useContext(BarContext);
+
+	if (context == null) {
+		throw new Error("useBar must be used within a BarProvider");
+	}
+
+	return context;
 }

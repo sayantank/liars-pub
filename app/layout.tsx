@@ -32,7 +32,11 @@ export default async function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased font-mono`}
 			>
-				<AppProviders session={session}>{children}</AppProviders>
+				<AppProviders session={session}>
+					<main className="relative min-h-screen w-full max-w-xl sm:border-x-2 shadow-lg border-x-primary mx-auto p-4 flex flex-col">
+						{children}
+					</main>
+				</AppProviders>
 			</body>
 		</html>
 	);

@@ -1,11 +1,12 @@
 import { notFound, redirect } from "next/navigation";
 import { PARTYKIT_URL } from "../env";
 import type { Bar } from "../types";
-import BarComponent from "@/components/bar";
 import { auth } from "@/auth";
 import { MAX_PLAYERS } from "../consts";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import BarUI from "@/components/bar";
+import BarProvider from "@/components/bar/provider";
 
 export default async function BarPage({
 	params,
@@ -53,5 +54,9 @@ export default async function BarPage({
 		);
 	}
 
-	return <BarComponent barId={bar.id} />;
+	return (
+		<BarProvider barId={barId}>
+			<BarUI />
+		</BarProvider>
+	);
 }
