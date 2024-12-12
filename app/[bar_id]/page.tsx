@@ -53,5 +53,5 @@ export default async function BarPage({
 		);
 	}
 
-	return <BarComponent bar={bar} />;
+	return <BarComponent barId={bar.id} />;
 }
