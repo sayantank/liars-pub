@@ -6,6 +6,9 @@ import usePartySocket from "partysocket/react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
+import { MAX_PLAYERS } from "@/app/consts";
+import { Button } from "./ui/button";
+import type { StartGameMessage } from "@/game/messages";
 
 export default function BarComponent({ barId }: { barId: string }) {
 	const { data: session } = useSession();
@@ -50,6 +53,13 @@ export default function BarComponent({ barId }: { barId: string }) {
 		};
 	}, [socket]);
 
+	async function handleStartGame() {
+		const message: StartGameMessage = {
+			type: "startGame",
+		};
+		socket.send(JSON.stringify(message));
+	}
+
 	if (socketState === socket.CONNECTING) {
 		return <p>Connecting...</p>;
 	}
@@ -59,10 +69,21 @@ export default function BarComponent({ barId }: { barId: string }) {
 	}
 
 	return (
-		<div>
+		<div className="flex flex-col space-y-4 items-center">
 			<h1 className="text-lg">Bar {barId}</h1>
 			<p>Players: {bar.players.length}</p>
-			<code>{JSON.stringify(hand, null, 2)}</code>
+
+			{!bar.isStarted && (
+				<Button
+					type="button"
+					onClick={handleStartGame}
+					disabled={bar.players.length !== MAX_PLAYERS}
+				>
+					Start Game
+				</Button>
+			)}
+
+			{bar.isStarted && <code>{JSON.stringify(hand?.cards, null, 2)}</code>}
 		</div>
 	);
 }

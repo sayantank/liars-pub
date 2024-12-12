@@ -1,5 +1,6 @@
 import { MAX_PLAYERS } from "@/app/consts";
 import type { Bar, Card, Hand } from "@/app/types";
+import { clientMessageSchema } from "@/game/messages";
 import type * as Party from "partykit/server";
 
 export default class Server implements Party.Server {
@@ -7,13 +8,13 @@ export default class Server implements Party.Server {
 
 	bar: Bar | undefined;
 	hands: Hand[] = [];
-	deck: Card[] = [];
+	stack: Card[] = [];
 
 	async onRequest(req: Party.Request) {
 		if (req.method === "POST") {
 			const bar = (await req.json()) as Bar;
 			this.bar = bar;
-			this.saveBar();
+			this.broadcastAndSave();
 		}
 
 		if (this.bar) {
@@ -38,7 +39,6 @@ export default class Server implements Party.Server {
 			this.bar.players.push({
 				id: playerId,
 			});
-			this.saveBar();
 			// A websocket just connected!
 			console.log("Player joined", {
 				playerId,
@@ -46,25 +46,28 @@ export default class Server implements Party.Server {
 			});
 		}
 
-		this.broadcast();
+		this.broadcastAndSave();
 	}
 
-	async onMessage(message: string) {
+	async onMessage(rawMessage: string) {
 		if (!this.bar) return;
 
-		const event = JSON.parse(message);
-		if (event.type === "message") {
-			const message = event.message;
-
-			this.broadcast();
-			this.saveBar();
+		try {
+			const message = clientMessageSchema.parse(JSON.parse(rawMessage));
+			switch (message.type) {
+				case "startGame": {
+					return this.startGame();
+				}
+			}
+		} catch (e) {
+			console.error(e);
 		}
 	}
 
 	async onStart() {
 		this.bar = await this.room.storage.get<Bar>("bar");
 		this.hands = (await this.room.storage.get<Hand[]>("hands")) ?? [];
-		this.deck = (await this.room.storage.get<Card[]>("deck")) ?? [];
+		this.stack = (await this.room.storage.get<Card[]>("stack")) ?? [];
 	}
 
 	onClose(connection: Party.Connection): void | Promise<void> {
@@ -80,8 +83,7 @@ export default class Server implements Party.Server {
 		}
 
 		this.bar.players.splice(index, 1);
-		this.broadcast();
-		this.saveBar();
+		this.broadcastAndSave();
 
 		console.log("Player left", {
 			playerId,
@@ -89,15 +91,77 @@ export default class Server implements Party.Server {
 		});
 	}
 
-	async saveBar() {
+	async startGame() {
+		if (this.bar == null) {
+			return;
+		}
+
+		if (this.bar.players.length !== MAX_PLAYERS) {
+			return;
+		}
+
+		const cardCounts: Array<{ count: number; type: Card["type"] }> = [
+			{ count: 3, type: "ace" },
+			{ count: 3, type: "king" },
+			{ count: 3, type: "queen" },
+			{ count: 1, type: "joker" },
+		];
+
+		const deck: Card[] = [];
+		for (const { count, type } of cardCounts) {
+			for (let i = 0; i < count; i++) {
+				deck.push({ type });
+			}
+		}
+
+		// Shuffle the deck
+		for (let i = deck.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[deck[i], deck[j]] = [deck[j], deck[i]];
+		}
+
+		const handsMap = new Map<string, Hand>();
+
+		// Distribute the cards to the players
+		let nextCardToIndex = 0;
+		while (deck.length > 0) {
+			const nextCard = deck.pop();
+			if (nextCard == null) {
+				break;
+			}
+
+			const player = this.bar.players[nextCardToIndex];
+
+			const hand = handsMap.get(player.id);
+			if (hand == null) {
+				handsMap.set(player.id, {
+					playerId: player.id,
+					cards: [nextCard],
+				});
+			} else {
+				hand.cards.push(nextCard);
+			}
+
+			nextCardToIndex = (nextCardToIndex + 1) % this.bar.players.length;
+		}
+
+		this.hands = Array.from(handsMap.values());
+		this.bar.isStarted = true;
+
+		this.broadcastAndSave();
+	}
+
+	async broadcastAndSave() {
+		this._broadcast();
+
 		if (this.bar) {
 			await this.room.storage.put<Bar>("bar", this.bar);
 		}
-		await this.room.storage.put<Card[]>("deck", this.deck);
+		await this.room.storage.put<Card[]>("stack", this.stack);
 		await this.room.storage.put<Hand[]>("hands", this.hands);
 	}
 
-	async broadcast() {
+	_broadcast() {
 		this.room.broadcast(JSON.stringify({ type: "bar", data: this.bar }));
 		if (this.bar) {
 			for (const hand of this.hands) {
