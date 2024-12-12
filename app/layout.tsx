@@ -33,7 +33,7 @@ export default async function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} antialiased font-mono`}
 			>
 				<AppProviders session={session}>
-					<main className="relative min-h-screen w-full max-w-xl sm:border-x-2 shadow-lg border-x-primary mx-auto p-4 flex flex-col">
+					<main className="relative h-screen w-full max-w-xl sm:border-x-2 shadow-lg border-x-primary mx-auto p-4 flex flex-col">
 						{children}
 					</main>
 				</AppProviders>

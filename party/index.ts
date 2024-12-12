@@ -1,5 +1,5 @@
 import { MAX_PLAYERS } from "@/app/consts";
-import type { Bar, Card, Hand } from "@/app/types";
+import type { Bar, Card, ChatMessage, Hand } from "@/app/types";
 import { clientMessageSchema } from "@/game/messages";
 import type * as Party from "partykit/server";
 
@@ -58,6 +58,9 @@ export default class Server implements Party.Server {
 				case "startGame": {
 					return this.startGame();
 				}
+				case "chat": {
+					return this.chat({ ...message.data, timestamp: Date.now() });
+				}
 			}
 		} catch (e) {
 			console.error(e);
@@ -91,7 +94,7 @@ export default class Server implements Party.Server {
 		});
 	}
 
-	async startGame() {
+	startGame() {
 		if (this.bar == null) {
 			return;
 		}
@@ -149,6 +152,21 @@ export default class Server implements Party.Server {
 		this.bar.isStarted = true;
 
 		this.broadcastAndSave();
+	}
+
+	chat(message: ChatMessage) {
+		if (this.bar == null) {
+			return;
+		}
+
+		this.bar.messages.push(message);
+		this.broadcastAndSave();
+
+		console.log("Sent chat message", {
+			playerId: message.playerId,
+			message: message.message,
+			timestamp: message.timestamp,
+		});
 	}
 
 	async broadcastAndSave() {

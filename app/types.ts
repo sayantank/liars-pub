@@ -1,7 +1,9 @@
 export type Bar = {
 	id: string;
-	players: Player[];
 	isStarted: boolean;
+
+	players: Player[];
+	messages: ChatMessage[];
 };
 
 export type Deck = {
@@ -19,4 +21,10 @@ export type Player = {
 
 export type Card = {
 	type: "ace" | "king" | "queen" | "joker";
+};
+
+export type ChatMessage = {
+	playerId: string;
+	message: string;
+	timestamp: number;
 };

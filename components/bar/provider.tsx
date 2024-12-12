@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import type { StartGameMessage } from "@/game/messages";
 
 export type BarContextType = {
+	playerId: string;
 	bar: Bar | null;
 	hand: Hand | null;
 	socket: PartySocket;
@@ -22,18 +23,13 @@ const BarContext = createContext<BarContextType | null>(null);
 
 export default function BarProvider({
 	children,
+	playerId,
 	barId,
-}: { children: React.ReactNode; barId: string }) {
-	const { data: session } = useSession();
-	const user = session?.user;
-	if (user == null || user.id == null) {
-		redirect("/");
-	}
-
+}: { children: React.ReactNode; playerId: string; barId: string }) {
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
 		room: barId,
-		id: user.id,
+		id: playerId,
 		onMessage(event) {
 			try {
 				const eventData = JSON.parse(event.data);
@@ -74,7 +70,9 @@ export default function BarProvider({
 	}
 
 	return (
-		<BarContext.Provider value={{ bar, hand, socket, socketState, startGame }}>
+		<BarContext.Provider
+			value={{ playerId, bar, hand, socket, socketState, startGame }}
+		>
 			{children}
 		</BarContext.Provider>
 	);

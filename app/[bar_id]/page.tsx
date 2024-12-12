@@ -54,8 +54,12 @@ export default async function BarPage({
 		);
 	}
 
+	if (user.id == null) {
+		return null;
+	}
+
 	return (
-		<BarProvider barId={barId}>
+		<BarProvider playerId={user.id} barId={barId}>
 			<BarUI />
 		</BarProvider>
 	);

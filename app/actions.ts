@@ -17,6 +17,8 @@ export async function createBar(formData: FormData) {
 
 	const bar: Bar = {
 		id,
+		isStarted: false,
+		messages: [],
 		players: [
 			{
 				id: createdBy,

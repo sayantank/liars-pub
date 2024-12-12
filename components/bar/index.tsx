@@ -32,32 +32,32 @@ export default function BarUI() {
 			</div>
 
 			{!bar.isStarted ? (
-				<div className="rounded-md border-2 border-primary shadow-md p-4 flex flex-col items-center">
-					<small className="text-base">Bar ID</small>
-					<h1 className="text-3xl font-semibold">{bar.id}</h1>
-				</div>
-			) : null}
-
-			{!bar.isStarted ? (
-				<div className="text-center space-y-2 min-h-52">
-					<small className="text-base">Players</small>
-					<div className="text-center space-y-1">
-						{bar.players.map((player) => (
-							<p key={player.id} className="text-xl font-semibold">
-								{player.id.slice(0, 5)}
-							</p>
-						))}
+				<>
+					<div className="rounded-md border-2 border-primary shadow-md p-4 flex flex-col items-center">
+						<small className="text-base">Bar ID</small>
+						<h1 className="text-3xl font-semibold">{bar.id}</h1>
 					</div>
-				</div>
+
+					<div className="text-center space-y-2 sm:min-h-72 lg:min-h-96 min-h-48">
+						<small className="text-base">Players</small>
+						<div className="text-center space-y-1">
+							{bar.players.map((player) => (
+								<p key={player.id} className="text-xl font-semibold">
+									{player.id.slice(0, 5)}
+								</p>
+							))}
+						</div>
+					</div>
+
+					<Button type="button" className="w-2/3 mx-auto">
+						Start Game
+					</Button>
+				</>
 			) : null}
 
-			{!bar.isStarted ? (
-				<Button type="button" className="w-2/3 mx-auto">
-					Start Game
-				</Button>
-			) : null}
-
-			<BarChat />
+			<div className="flex-1 min-h-0">
+				<BarChat />
+			</div>
 		</>
 	);
 }

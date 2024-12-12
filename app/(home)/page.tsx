@@ -10,8 +10,8 @@ export default async function Home() {
 	const isSignedIn = user != null;
 
 	return (
-		<div className="flex flex-col items-center space-y-4">
-			<div className="relative bottom-full h-[120px] w-[120px]">
+		<>
+			<div className="relative h-[120px] w-[120px]">
 				<div className="absolute left-0 transform -rotate-12">
 					<PixelAceCard />
 				</div>
@@ -50,6 +50,6 @@ export default async function Home() {
 					<Button type="submit">Sign In</Button>
 				</form>
 			)}
-		</div>
+		</>
 	);
 }
