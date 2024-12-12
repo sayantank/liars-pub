@@ -1,6 +1,7 @@
 import { createBar } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { auth, signIn, signOut } from "@/auth";
+import PixelAceCard from "@/components/cards/ace";
 
 export default async function Home() {
 	const session = await auth();
@@ -10,6 +11,17 @@ export default async function Home() {
 
 	return (
 		<div className="flex flex-col items-center space-y-4">
+			<div className="relative bottom-full h-[120px] w-[120px]">
+				<div className="absolute left-0 transform -rotate-12">
+					<PixelAceCard />
+				</div>
+				<div className="absolute left-[20px] top-0">
+					<PixelAceCard />
+				</div>
+				<div className="absolute left-[40px] transform rotate-12">
+					<PixelAceCard />
+				</div>
+			</div>
 			<h1 className="text-xl">Liar's Browser</h1>
 			{isSignedIn ? (
 				<>
