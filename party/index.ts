@@ -25,14 +25,10 @@ export default class Server implements Party.Server {
 	}
 
 	onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
-		const url = new URL(ctx.request.url);
-		const playerId = url.searchParams.get("playerId");
-
-		console.log("playerId", { playerId, length: this.bar?.players.length });
+		const playerId = conn.id;
 
 		// If the player is not already in the bar, add them
 		if (
-			playerId != null &&
 			this.bar != null &&
 			this.bar.players.length < MAX_PLAYERS &&
 			this.bar.players.find((p) => p.id === playerId) == null
@@ -42,13 +38,34 @@ export default class Server implements Party.Server {
 			});
 			this.room.broadcast(JSON.stringify({ bar: this.bar }));
 			this.saveBar();
+
+			// A websocket just connected!
+			console.log("Player joined", {
+				playerId,
+				room: this.room.id,
+			});
+		}
+	}
+
+	onClose(connection: Party.Connection): void | Promise<void> {
+		if (this.bar == null) {
+			return;
 		}
 
-		// A websocket just connected!
-		console.log("Connected", {
-			id: conn.id,
+		const playerId = connection.id;
+		const index = this.bar.players.findIndex((p) => p.id === playerId);
+
+		if (index === -1) {
+			return;
+		}
+
+		this.bar.players.splice(index, 1);
+		this.room.broadcast(JSON.stringify({ bar: this.bar }));
+		this.saveBar();
+
+		console.log("Player left", {
+			playerId,
 			room: this.room.id,
-			url: new URL(ctx.request.url).pathname,
 		});
 	}
 

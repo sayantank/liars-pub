@@ -19,6 +19,7 @@ export default function BarComponent({ bar }: { bar: Bar }) {
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
 		room: bar.id,
+		id: user.id,
 		onMessage(event) {
 			console.log("received message", event);
 			try {
@@ -29,9 +30,6 @@ export default function BarComponent({ bar }: { bar: Bar }) {
 			} catch (e) {
 				console.error(e);
 			}
-		},
-		query: {
-			playerId: user.id,
 		},
 	});
 
