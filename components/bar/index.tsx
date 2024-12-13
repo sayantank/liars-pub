@@ -43,7 +43,7 @@ export default function BarUI() {
 						<div className="text-center space-y-1">
 							{bar.players.map((player) => (
 								<p key={player.id} className="text-xl font-semibold">
-									{player.id.slice(0, 5)}
+									{player.nickname}
 								</p>
 							))}
 						</div>

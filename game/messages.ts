@@ -19,4 +19,5 @@ export const clientMessageSchema = z.discriminatedUnion("type", [
 
 export type StartGameMessage = z.infer<typeof startGameMessageSchema>;
 export type ChatMessage = z.infer<typeof chatMessageSchema>;
+
 export type ClientMessage = z.infer<typeof clientMessageSchema>;

@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AppProviders from "./providers";
 import { auth } from "@/auth";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default async function RootLayout({
 					<main className="relative h-screen w-full max-w-xl sm:border-x-2 shadow-lg border-x-primary mx-auto p-4 flex flex-col">
 						{children}
 					</main>
+					<Toaster position="top-center" />
 				</AppProviders>
 			</body>
 		</html>

@@ -1,6 +1,7 @@
 import { MAX_PLAYERS } from "@/app/consts";
 import type { Bar, Card, ChatMessage, Hand } from "@/app/types";
 import { clientMessageSchema } from "@/game/messages";
+import { getRedisKey, redis } from "@/redis";
 import type * as Party from "partykit/server";
 
 export default class Server implements Party.Server {
@@ -27,17 +28,39 @@ export default class Server implements Party.Server {
 		return new Response("Not found", { status: 404 });
 	}
 
-	onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
+	async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
 		const playerId = conn.id;
+		const nicknameRedisKey = getRedisKey(`nickname:${playerId}`);
+
+		const response = await fetch(
+			`${process.env.UPSTASH_REDIS_URL}/get/${nicknameRedisKey}`,
+			{
+				headers: {
+					Authorization: `Bearer ${process.env.UPSTASH_REDIS_TOKEN}`,
+				},
+			},
+		);
+
+		if (!response.ok) {
+			console.error({
+				status: response.status,
+				body: await response.text(),
+			});
+			return;
+		}
+
+		const { result: nickname } = await response.json();
 
 		// If the player is not already in the bar, add them
 		if (
 			this.bar != null &&
 			this.bar.players.length < MAX_PLAYERS &&
-			this.bar.players.find((p) => p.id === playerId) == null
+			this.bar.players.find((p) => p.id === playerId) == null &&
+			nickname != null
 		) {
 			this.bar.players.push({
 				id: playerId,
+				nickname,
 			});
 			// A websocket just connected!
 			console.log("Player joined", {
@@ -56,12 +79,16 @@ export default class Server implements Party.Server {
 			const message = clientMessageSchema.parse(JSON.parse(rawMessage));
 			switch (message.type) {
 				case "startGame": {
-					return this.startGame();
+					this.startGame();
+					break;
 				}
 				case "chat": {
-					return this.chat({ ...message.data, timestamp: Date.now() });
+					this.chat({ ...message.data, timestamp: Date.now() });
+					break;
 				}
 			}
+
+			this.broadcastAndSave();
 		} catch (e) {
 			console.error(e);
 		}
@@ -150,8 +177,6 @@ export default class Server implements Party.Server {
 
 		this.hands = Array.from(handsMap.values());
 		this.bar.isStarted = true;
-
-		this.broadcastAndSave();
 	}
 
 	chat(message: ChatMessage) {
@@ -160,7 +185,6 @@ export default class Server implements Party.Server {
 		}
 
 		this.bar.messages.push(message);
-		this.broadcastAndSave();
 
 		console.log("Sent chat message", {
 			playerId: message.playerId,

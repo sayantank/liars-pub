@@ -3,15 +3,13 @@
 import { createContext, useContext } from "react";
 import type PartySocket from "partysocket";
 import { PARTYKIT_HOST } from "@/app/env";
-import type { Hand, Bar } from "@/app/types";
+import type { Hand, Bar, Player } from "@/app/types";
 import usePartySocket from "partysocket/react";
-import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { StartGameMessage } from "@/game/messages";
 
 export type BarContextType = {
-	playerId: string;
+	player: Player;
 	bar: Bar | null;
 	hand: Hand | null;
 	socket: PartySocket;
@@ -23,13 +21,13 @@ const BarContext = createContext<BarContextType | null>(null);
 
 export default function BarProvider({
 	children,
-	playerId,
+	player,
 	barId,
-}: { children: React.ReactNode; playerId: string; barId: string }) {
+}: { children: React.ReactNode; player: Player; barId: string }) {
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
 		room: barId,
-		id: playerId,
+		id: player.id,
 		onMessage(event) {
 			try {
 				const eventData = JSON.parse(event.data);
@@ -71,7 +69,7 @@ export default function BarProvider({
 
 	return (
 		<BarContext.Provider
-			value={{ playerId, bar, hand, socket, socketState, startGame }}
+			value={{ player, bar, hand, socket, socketState, startGame }}
 		>
 			{children}
 		</BarContext.Provider>

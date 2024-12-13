@@ -17,6 +17,7 @@ export type Hand = {
 
 export type Player = {
 	id: string;
+	nickname: string;
 };
 
 export type Card = {
@@ -27,8 +28,4 @@ export type ChatMessage = {
 	playerId: string;
 	message: string;
 	timestamp: number;
-};
-
-export type PlayerMetadata = {
-	nickname: string;
 };

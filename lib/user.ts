@@ -1,15 +1,12 @@
-import type { PlayerMetadata } from "@/app/types";
+import type { Player } from "@/app/types";
 import { getRedisKey } from "@/redis";
 
-export async function getPlayerMetadata(
-	playerId?: string,
-): Promise<PlayerMetadata | null> {
+export async function getPlayer(playerId?: string): Promise<Player | null> {
 	if (playerId == null) {
 		return null;
 	}
 
 	const nicknameRedisKey = getRedisKey(`nickname:${playerId}`);
-	console.log(nicknameRedisKey);
 
 	const response = await fetch(
 		`${process.env.UPSTASH_REDIS_URL}/get/${nicknameRedisKey}`,
@@ -38,6 +35,7 @@ export async function getPlayerMetadata(
 	}
 
 	return {
+		id: playerId,
 		nickname,
 	};
 }

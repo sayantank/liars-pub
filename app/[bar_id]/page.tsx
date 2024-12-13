@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import BarUI from "@/components/bar";
 import BarProvider from "@/components/bar/provider";
+import { getPlayer } from "@/lib/user";
 
 export default async function BarPage({
 	params,
@@ -54,12 +55,14 @@ export default async function BarPage({
 		);
 	}
 
-	if (user.id == null) {
+	const player = await getPlayer(user.id);
+
+	if (player == null) {
 		return null;
 	}
 
 	return (
-		<BarProvider playerId={user.id} barId={barId}>
+		<BarProvider player={player} barId={barId}>
 			<BarUI />
 		</BarProvider>
 	);

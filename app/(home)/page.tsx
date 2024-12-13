@@ -2,8 +2,8 @@ import { createBar } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { auth, signIn, signOut } from "@/auth";
 import PixelAceCard from "@/components/cards/ace";
-import { CircleUserRound } from "lucide-react";
-import { getPlayerMetadata } from "@/lib/user";
+import { getPlayer } from "@/lib/user";
+import NicknameButton from "@/components/nickname-btn";
 
 export default async function Home() {
 	const session = await auth();
@@ -11,7 +11,7 @@ export default async function Home() {
 
 	const isSignedIn = user != null;
 
-	const playerMetadata = await getPlayerMetadata(user?.id);
+	const player = await getPlayer(user?.id);
 
 	return (
 		<>
@@ -23,7 +23,7 @@ export default async function Home() {
 							await signOut();
 						}}
 					>
-						<Button type="submit" variant="outline" size="sm">
+						<Button type="submit" variant="outline">
 							Sign Out
 						</Button>
 					</form>
@@ -31,14 +31,7 @@ export default async function Home() {
 			</div>
 			<div className="w-full p-4 absolute bottom-0">
 				<div className="flex items-center space-x-2">
-					{playerMetadata != null && (
-						<>
-							<CircleUserRound className="h-8 w-8" />
-							<h2 className="text-lg font-semibold">
-								{playerMetadata.nickname}
-							</h2>
-						</>
-					)}
+					{player != null && <NicknameButton player={player} />}
 				</div>
 			</div>
 			<div className="relative h-[120px] w-[120px]">
@@ -56,8 +49,16 @@ export default async function Home() {
 			{isSignedIn ? (
 				<>
 					<form action={createBar}>
-						<input type="hidden" name="createdBy" value={user.id} />
-						<Button type="submit">Create Bar</Button>
+						<input type="hidden" name="createdBy.id" value={user.id} />
+						<input
+							hidden
+							type="hidden"
+							name="createdBy.nickname"
+							value={player?.nickname}
+						/>
+						<Button type="submit" disabled={player == null}>
+							Create Bar
+						</Button>
 					</form>
 				</>
 			) : (
