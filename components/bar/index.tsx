@@ -32,12 +32,14 @@ export default function BarUI() {
 			</div>
 
 			{!bar.isStarted ? (
-				<>
-					<div className="rounded-md border-2 border-primary shadow-md p-4 flex flex-col items-center">
-						<small className="text-base">Bar ID</small>
-						<h1 className="text-3xl font-semibold">{bar.id}</h1>
-					</div>
+				<div className="mt-4 rounded-md border-2 border-primary shadow-md p-4 flex flex-col items-center">
+					<small className="text-base">Bar ID</small>
+					<h1 className="text-3xl font-semibold">{bar.id}</h1>
+				</div>
+			) : null}
 
+			{!bar.isStarted ? (
+				<div className="grow mt-8">
 					<div className="text-center space-y-2 min-h-48">
 						<small className="text-base">Players</small>
 						<div className="text-center space-y-1">
@@ -48,14 +50,15 @@ export default function BarUI() {
 							))}
 						</div>
 					</div>
-
-					<Button type="button" className="w-2/3 mx-auto">
-						Start Game
-					</Button>
-				</>
+					<div className="w-full flex justify-center">
+						<Button type="button" className=" w-2/3">
+							Start Game
+						</Button>
+					</div>
+				</div>
 			) : null}
 
-			<div className="flex-1 min-h-0">
+			<div className="min-h-0">
 				<BarChat />
 			</div>
 		</>

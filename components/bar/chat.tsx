@@ -4,6 +4,9 @@ import { useBar } from "./provider";
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { chatMessageSchema } from "@/game/messages";
+import type { ChatMessage } from "@/app/types";
+
+const CHAT_BUBBLE_DURATION = 3 * 1000; // 5 seconds
 
 export default function BarChat() {
 	const { bar, player, socket } = useBar();
@@ -51,36 +54,13 @@ export default function BarChat() {
 	}
 
 	return (
-		<div className="relative h-full flex flex-col space-y-4">
-			<div className="relative flex-1 min-h-0 flex flex-col justify-end">
-				<div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-background to-transparent pointer-events-none" />
-				<div className="space-y-4 overflow-y-auto no-scrollbar">
-					{messages.map((msg) => {
-						return (
-							<div
-								key={msg.timestamp}
-								className={cn(
-									"w-full flex items-center",
-									msg.player.id === player.id ? "justify-end" : "justify-start",
-								)}
-							>
-								<div
-									className={cn(
-										"px-4 py-2 rounded-md border-primary shadow-md border-2 min-w-48 flex flex-col",
-										msg.player.id === player.id ? "items-end" : "items-start",
-									)}
-								>
-									<small className="text-xs w-min mb-1">
-										{msg.player.nickname}
-									</small>
-									<p className="max-w-full break-words">{msg.message}</p>
-								</div>
-							</div>
-						);
-					})}
-					<div ref={messagesEndRef} />
-				</div>
+		<div className="relative">
+			<div className="absolute bottom-20 w-full space-y-4 z-10">
+				{messages.map((msg) => (
+					<ChatBubble key={msg.timestamp} msg={msg} />
+				))}
 			</div>
+
 			<form className="flex items-center" onSubmit={handleChatSend}>
 				<div className="relative w-full">
 					<Input
@@ -100,6 +80,50 @@ export default function BarChat() {
 					</button>
 				</div>
 			</form>
+		</div>
+	);
+}
+
+function ChatBubble({ msg }: { msg: ChatMessage }) {
+	const { player } = useBar();
+	const [currentTimestamp, setCurrentTimestamp] = useState(() => Date.now());
+	const [isVisible, setIsVisible] = useState(true);
+
+	// Update the timestamp and handle visibility
+	useEffect(() => {
+		const interval = setInterval(() => {
+			const now = Date.now();
+			if (now - msg.timestamp > CHAT_BUBBLE_DURATION - 1000) {
+				setIsVisible(false);
+			}
+			setCurrentTimestamp(now);
+		}, 1000);
+
+		return () => clearInterval(interval);
+	}, [msg.timestamp]);
+
+	if (currentTimestamp - msg.timestamp > CHAT_BUBBLE_DURATION) {
+		return null;
+	}
+
+	return (
+		<div
+			key={msg.timestamp}
+			className={cn(
+				"w-full flex items-center transition-opacity duration-1000",
+				isVisible ? "opacity-100" : "opacity-0",
+				msg.player.id === player.id ? "justify-end" : "justify-start",
+			)}
+		>
+			<div
+				className={cn(
+					"px-4 py-2 rounded-md border-primary bg-background shadow-md border-2 min-w-48 flex flex-col",
+					msg.player.id === player.id ? "items-end" : "items-start",
+				)}
+			>
+				<small className="text-xs w-min mb-1">{msg.player.nickname}</small>
+				<p className="max-w-full break-words">{msg.message}</p>
+			</div>
 		</div>
 	);
 }
