@@ -1,33 +1,16 @@
 import { useCallback } from "react";
 import { useBar } from "./provider";
 import { CardType } from "@/app/types";
-import { cn, getCardTypeLabel } from "@/lib/utils";
+import { cn, getCardTypeLabel, getPlayerForTurn } from "@/lib/utils";
 
 export default function BarBanner({ className }: { className?: string }) {
-	const { bar, socket, socketState } = useBar();
+	const { bar } = useBar();
 
 	if (bar == null) {
 		return null;
 	}
 
-	const lastTurnPlayer = bar.players[(bar.turn - 1) % bar.players.length];
-
-	const TableType = useCallback(() => {
-		if (bar.tableType == null) {
-			return null;
-		}
-
-		switch (bar.tableType) {
-			case CardType.Ace:
-				return;
-			case CardType.King:
-				return <h1 className="text-3xl font-semibold">King's table</h1>;
-			case CardType.Queen:
-				return <h1 className="text-3xl font-semibold">Queen's table</h1>;
-			default:
-				throw new Error("Invalid table type");
-		}
-	}, [bar.tableType]);
+	const lastTurnPlayer = getPlayerForTurn(bar, bar.turn - 1);
 
 	return (
 		<div

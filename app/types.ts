@@ -7,6 +7,8 @@ export type Bar = {
 	lastClaimCount: number | null;
 
 	players: Player[];
+	activePlayers: Player[];
+
 	messages: ChatMessage[];
 };
 

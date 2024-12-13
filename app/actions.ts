@@ -53,6 +53,7 @@ export async function createBar(formData: FormData) {
 				nickname: createBarForm.data.nickname,
 			},
 		],
+		activePlayers: [],
 	};
 
 	await fetch(`${PARTYKIT_URL}/party/${id}`, {

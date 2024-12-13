@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn, getPlayerForTurn } from "@/lib/utils";
 import { useBar } from "./provider";
 
 export default function BarHeader() {
@@ -8,7 +8,7 @@ export default function BarHeader() {
 		return null;
 	}
 
-	const currentTurnPlayer = bar.players[bar.turn % bar.players.length];
+	const currentTurnPlayer = getPlayerForTurn(bar, bar.turn);
 
 	return (
 		<div
@@ -21,13 +21,15 @@ export default function BarHeader() {
 				<small className="text-center text-base">
 					Welcome to the Liar's Bar!
 				</small>
-			) : currentTurnPlayer.id === player.id ? (
-				<small className="text-base">It's your turn!</small>
-			) : (
-				<small className="text-center text-base">
-					It's {currentTurnPlayer.nickname}'s turn!
-				</small>
-			)}
+			) : currentTurnPlayer != null ? (
+				currentTurnPlayer.id === player.id ? (
+					<small className="text-base">It's your turn!</small>
+				) : (
+					<small className="text-center text-base">
+						It's {currentTurnPlayer.nickname}'s turn!
+					</small>
+				)
+			) : null}
 		</div>
 	);
 }

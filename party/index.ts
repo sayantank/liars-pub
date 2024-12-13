@@ -229,12 +229,14 @@ export default class Server implements Party.Server {
 
 		this.hands = Array.from(handsMap.values());
 
-		// Shuffle the players
-		for (let i = this.bar.players.length - 1; i > 0; i--) {
+		// Shuffle the players and set it to activePlayers
+		this.bar.activePlayers = [...this.bar.players];
+
+		for (let i = this.bar.activePlayers.length - 1; i > 0; i--) {
 			const j = Math.floor(Math.random() * (i + 1));
-			[this.bar.players[i], this.bar.players[j]] = [
-				this.bar.players[j],
-				this.bar.players[i],
+			[this.bar.activePlayers[i], this.bar.activePlayers[j]] = [
+				this.bar.activePlayers[j],
+				this.bar.activePlayers[i],
 			];
 		}
 

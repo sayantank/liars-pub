@@ -3,6 +3,7 @@ import PixelCard from "../card";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import type { ClaimCardsMessage } from "@/game/messages";
+import { getPlayerForTurn } from "@/lib/utils";
 
 export default function CardHand() {
 	const { hand, player, socket, bar } = useBar();
@@ -12,7 +13,7 @@ export default function CardHand() {
 		return null;
 	}
 
-	const currentTurnPlayer = bar.players[bar.turn % bar.players.length];
+	const currentTurnPlayer = getPlayerForTurn(bar, bar.turn);
 
 	function toggleCardSelection(index: number) {
 		const newSelection = new Set(selectedCards);
@@ -83,7 +84,9 @@ export default function CardHand() {
 					size="lg"
 					className="flex-1"
 					onClick={handleClaimCards}
-					disabled={currentTurnPlayer.id !== player.id}
+					disabled={
+						currentTurnPlayer == null || currentTurnPlayer.id !== player.id
+					}
 				>
 					Claim
 				</Button>
@@ -91,7 +94,9 @@ export default function CardHand() {
 					type="button"
 					size="lg"
 					className="flex-1"
-					disabled={currentTurnPlayer.id !== player.id}
+					disabled={
+						currentTurnPlayer == null || currentTurnPlayer.id !== player.id
+					}
 				>
 					Call out
 				</Button>
