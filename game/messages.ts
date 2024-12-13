@@ -1,3 +1,4 @@
+import { nicknameRegex } from "@/app/consts";
 import { z } from "zod";
 
 const startGameMessageSchema = z.object({
@@ -7,7 +8,10 @@ const startGameMessageSchema = z.object({
 export const chatMessageSchema = z.object({
 	type: z.literal("chat"),
 	data: z.object({
-		playerId: z.string(),
+		player: z.object({
+			id: z.string(),
+			nickname: z.string().regex(nicknameRegex),
+		}),
 		message: z.string().min(1),
 	}),
 });

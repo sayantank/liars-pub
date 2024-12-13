@@ -38,7 +38,7 @@ export default function BarUI() {
 						<h1 className="text-3xl font-semibold">{bar.id}</h1>
 					</div>
 
-					<div className="text-center space-y-2 sm:min-h-72 lg:min-h-96 min-h-48">
+					<div className="text-center space-y-2 min-h-48">
 						<small className="text-base">Players</small>
 						<div className="text-center space-y-1">
 							{bar.players.map((player) => (

@@ -25,7 +25,7 @@ export type Card = {
 };
 
 export type ChatMessage = {
-	playerId: string;
+	player: Player;
 	message: string;
 	timestamp: number;
 };
