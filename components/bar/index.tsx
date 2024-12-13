@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useBar } from "./provider";
 import BarChat from "./chat";
+import { MAX_PLAYERS } from "@/app/consts";
 
 export default function BarUI() {
 	const { bar, socket, socketState } = useBar();
@@ -40,7 +41,7 @@ export default function BarUI() {
 
 			{!bar.isStarted ? (
 				<div className="grow mt-8">
-					<div className="text-center space-y-2 min-h-48">
+					<div className="text-center space-y-2">
 						<small className="text-base">Players</small>
 						<div className="text-center space-y-1">
 							{bar.players.map((player) => (
@@ -50,11 +51,13 @@ export default function BarUI() {
 							))}
 						</div>
 					</div>
-					<div className="w-full flex justify-center">
-						<Button type="button" className=" w-2/3">
-							Start Game
-						</Button>
-					</div>
+					{bar.players.length === MAX_PLAYERS && (
+						<div className="w-full flex justify-center mt-4">
+							<Button type="button" className=" w-2/3">
+								Start Game
+							</Button>
+						</div>
+					)}
 				</div>
 			) : null}
 
