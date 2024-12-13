@@ -1,3 +1,10 @@
+import type { cardSchema, chatMessageSchema, playerSchema } from "@/lib/zod";
+import type { z } from "zod";
+
+export type Player = z.infer<typeof playerSchema>;
+export type Card = z.infer<typeof cardSchema>;
+export type ChatMessage = z.infer<typeof chatMessageSchema>;
+
 export type Bar = {
 	id: string;
 	isStarted: boolean;
@@ -21,24 +28,9 @@ export type Hand = {
 	cards: Card[];
 };
 
-export type Player = {
-	id: string;
-	nickname: string;
-};
-
-export type Card = {
-	type: CardType;
-};
-
 export enum CardType {
 	Ace = "ace",
 	King = "king",
 	Queen = "queen",
 	Joker = "joker",
 }
-
-export type ChatMessage = {
-	player: Player;
-	message: string;
-	timestamp: number;
-};

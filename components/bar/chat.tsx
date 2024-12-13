@@ -3,7 +3,7 @@ import { SendIcon } from "lucide-react";
 import { useBar } from "./provider";
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import { chatMessageSchema } from "@/game/messages";
+import { sendChatMessageSchema } from "@/game/messages";
 import type { ChatMessage } from "@/app/types";
 
 const CHAT_BUBBLE_DURATION = 3 * 1000; // 5 seconds
@@ -38,7 +38,7 @@ export default function BarChat() {
 		const message = formData.get("message")?.toString();
 
 		try {
-			const chatMessage = chatMessageSchema.parse({
+			const chatMessage = sendChatMessageSchema.parse({
 				type: "chat",
 				data: {
 					player,
@@ -103,6 +103,10 @@ function ChatBubble({ msg }: { msg: ChatMessage }) {
 	}, [msg.timestamp]);
 
 	if (currentTimestamp - msg.timestamp > CHAT_BUBBLE_DURATION) {
+		return null;
+	}
+
+	if (msg.type !== "text") {
 		return null;
 	}
 

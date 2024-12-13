@@ -7,7 +7,8 @@ import {
 	type Hand,
 } from "@/app/types";
 import { type ClaimCardsMessage, clientMessageSchema } from "@/game/messages";
-import { getRedisKey, redis } from "@/redis";
+import { getPlayerForTurn } from "@/lib/utils";
+import { getRedisKey } from "@/redis";
 import type * as Party from "partykit/server";
 
 export default class Server implements Party.Server {
@@ -89,7 +90,7 @@ export default class Server implements Party.Server {
 					break;
 				}
 				case "chat": {
-					this.chat({ ...message.data, timestamp: Date.now() });
+					this.chat({ ...message.data, type: "text", timestamp: Date.now() });
 					break;
 				}
 				case "claimCards": {
@@ -137,10 +138,9 @@ export default class Server implements Party.Server {
 		}
 
 		const playerId = message.data.playerId;
-		const currentTurnPlayer =
-			this.bar.players[this.bar.turn % this.bar.players.length];
+		const currentTurnPlayer = getPlayerForTurn(this.bar, this.bar.turn);
 
-		if (playerId !== currentTurnPlayer.id) {
+		if (currentTurnPlayer == null || playerId !== currentTurnPlayer.id) {
 			return;
 		}
 
@@ -159,7 +159,13 @@ export default class Server implements Party.Server {
 		const playerHand = this.hands[playerHandIndex];
 		this.hands.splice(playerHandIndex, 1);
 
+		// Empty the stack so that we can save the next set of cards
+		this.stack = [];
+
+		// Add the cards to the stack
+		// And remove them from the player hand
 		for (const cardIndex of message.data.cards) {
+			this.stack.push(playerHand.cards[cardIndex]);
 			playerHand.cards.splice(cardIndex, 1);
 		}
 
