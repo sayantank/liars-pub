@@ -1,6 +1,12 @@
 import { MAX_PLAYERS } from "@/app/consts";
-import type { Bar, Card, ChatMessage, Hand } from "@/app/types";
-import { clientMessageSchema } from "@/game/messages";
+import {
+	CardType,
+	type Bar,
+	type Card,
+	type ChatMessage,
+	type Hand,
+} from "@/app/types";
+import { type ClaimCardsMessage, clientMessageSchema } from "@/game/messages";
 import { getRedisKey, redis } from "@/redis";
 import type * as Party from "partykit/server";
 
@@ -86,6 +92,10 @@ export default class Server implements Party.Server {
 					this.chat({ ...message.data, timestamp: Date.now() });
 					break;
 				}
+				case "claimCards": {
+					this.claimCards(message);
+					break;
+				}
 			}
 
 			this.broadcastAndSave();
@@ -121,6 +131,43 @@ export default class Server implements Party.Server {
 		});
 	}
 
+	claimCards(message: ClaimCardsMessage) {
+		if (this.bar == null) {
+			return;
+		}
+
+		const playerId = message.data.playerId;
+		const currentTurnPlayer =
+			this.bar.players[this.bar.turn % this.bar.players.length];
+
+		if (playerId !== currentTurnPlayer.id) {
+			return;
+		}
+
+		// remove cards from the hand
+		const playerHandIndex = this.hands.findIndex(
+			(hand) => hand.playerId === playerId,
+		);
+		if (playerHandIndex === -1) {
+			console.error("Player hand not found", {
+				playerId,
+				room: this.room.id,
+			});
+		}
+
+		// Remove and return the hand of the player
+		const playerHand = this.hands[playerHandIndex];
+		this.hands.splice(playerHandIndex, 1);
+
+		for (const cardIndex of message.data.cards) {
+			playerHand.cards.splice(cardIndex, 1);
+		}
+
+		this.hands.push(playerHand);
+		this.bar.lastClaimCount = message.data.cards.length;
+		this.bar.turn += 1;
+	}
+
 	startGame() {
 		if (this.bar == null) {
 			return;
@@ -130,11 +177,16 @@ export default class Server implements Party.Server {
 			return;
 		}
 
+		// Set the table type
+		const cardTypes = [CardType.Ace, CardType.King, CardType.Queen];
+		const randomNumber = Math.floor(Math.random() * cardTypes.length);
+		this.bar.tableType = cardTypes[randomNumber];
+
 		const cardCounts: Array<{ count: number; type: Card["type"] }> = [
-			{ count: 3, type: "ace" },
-			{ count: 3, type: "king" },
-			{ count: 3, type: "queen" },
-			{ count: 1, type: "joker" },
+			{ count: 3, type: CardType.Ace },
+			{ count: 3, type: CardType.King },
+			{ count: 3, type: CardType.Queen },
+			{ count: 1, type: CardType.Joker },
 		];
 
 		const deck: Card[] = [];
@@ -176,7 +228,18 @@ export default class Server implements Party.Server {
 		}
 
 		this.hands = Array.from(handsMap.values());
+
+		// Shuffle the players
+		for (let i = this.bar.players.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[this.bar.players[i], this.bar.players[j]] = [
+				this.bar.players[j],
+				this.bar.players[i],
+			];
+		}
+
 		this.bar.isStarted = true;
+		this.bar.turn = 0;
 	}
 
 	chat(message: ChatMessage) {
@@ -185,12 +248,6 @@ export default class Server implements Party.Server {
 		}
 
 		this.bar.messages.push(message);
-
-		console.log("Sent chat message", {
-			playerId: message.playerId,
-			message: message.message,
-			timestamp: message.timestamp,
-		});
 	}
 
 	async broadcastAndSave() {

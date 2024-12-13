@@ -69,7 +69,14 @@ export default function BarProvider({
 
 	return (
 		<BarContext.Provider
-			value={{ player, bar, hand, socket, socketState, startGame }}
+			value={{
+				player,
+				bar,
+				hand,
+				socket,
+				socketState,
+				startGame,
+			}}
 		>
 			{children}
 		</BarContext.Provider>

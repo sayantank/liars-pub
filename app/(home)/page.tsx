@@ -1,9 +1,10 @@
 import { createBar } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { auth, signIn, signOut } from "@/auth";
-import PixelAceCard from "@/components/cards/ace";
 import { getPlayer } from "@/lib/user";
 import NicknameButton from "@/components/nickname-btn";
+import PixelCard from "@/components/card";
+import { CardType } from "../types";
 
 export default async function Home() {
 	const session = await auth();
@@ -34,15 +35,15 @@ export default async function Home() {
 					{player != null && <NicknameButton player={player} />}
 				</div>
 			</div>
-			<div className="relative h-[120px] w-[120px]">
+			<div className="relative h-[150px] w-[140px]">
 				<div className="absolute left-0 transform -rotate-12">
-					<PixelAceCard />
+					<PixelCard type={CardType.Ace} />
 				</div>
 				<div className="absolute left-[20px] top-0">
-					<PixelAceCard />
+					<PixelCard type={CardType.Queen} />
 				</div>
 				<div className="absolute left-[40px] transform rotate-12">
-					<PixelAceCard />
+					<PixelCard type={CardType.King} />
 				</div>
 			</div>
 			<h1 className="text-xl">Liar's Browser</h1>

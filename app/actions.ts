@@ -43,6 +43,9 @@ export async function createBar(formData: FormData) {
 	const bar: Bar = {
 		id,
 		isStarted: false,
+		turn: 0,
+		tableType: null,
+		lastClaimCount: null,
 		messages: [],
 		players: [
 			{

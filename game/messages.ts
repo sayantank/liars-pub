@@ -1,4 +1,5 @@
 import { nicknameRegex } from "@/app/consts";
+import { CardType } from "@/app/types";
 import { z } from "zod";
 
 const startGameMessageSchema = z.object({
@@ -16,12 +17,23 @@ export const chatMessageSchema = z.object({
 	}),
 });
 
+export const claimCardsMessageSchema = z.object({
+	type: z.literal("claimCards"),
+	data: z.object({
+		playerId: z.string(),
+		// TY
+		cards: z.array(z.number()),
+	}),
+});
+
 export const clientMessageSchema = z.discriminatedUnion("type", [
 	startGameMessageSchema,
 	chatMessageSchema,
+	claimCardsMessageSchema,
 ]);
 
 export type StartGameMessage = z.infer<typeof startGameMessageSchema>;
 export type ChatMessage = z.infer<typeof chatMessageSchema>;
+export type ClaimCardsMessage = z.infer<typeof claimCardsMessageSchema>;
 
 export type ClientMessage = z.infer<typeof clientMessageSchema>;

@@ -2,6 +2,10 @@ export type Bar = {
 	id: string;
 	isStarted: boolean;
 
+	turn: number;
+	tableType: CardType | null;
+	lastClaimCount: number | null;
+
 	players: Player[];
 	messages: ChatMessage[];
 };
@@ -21,8 +25,15 @@ export type Player = {
 };
 
 export type Card = {
-	type: "ace" | "king" | "queen" | "joker";
+	type: CardType;
 };
+
+export enum CardType {
+	Ace = "ace",
+	King = "king",
+	Queen = "queen",
+	Joker = "joker",
+}
 
 export type ChatMessage = {
 	player: Player;
