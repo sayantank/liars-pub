@@ -4,3 +4,6 @@
 - favicon
 - players leaving
 - num players indicator
+- table UI
+- avatars
+- remove auth

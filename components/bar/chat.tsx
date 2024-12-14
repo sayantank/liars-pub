@@ -15,10 +15,6 @@ export default function BarChat() {
 	const [chatText, setChatText] = useState("");
 
 	const messages = useMemo(() => {
-		if (bar == null) {
-			return [];
-		}
-
 		return bar.messages.sort((a, b) => a.timestamp - b.timestamp);
 	}, [bar]);
 

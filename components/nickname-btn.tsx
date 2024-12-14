@@ -21,10 +21,13 @@ import { editNickname } from "@/app/actions";
 import { toast } from "sonner";
 import type { Player } from "@/app/types";
 
-export default function NicknameButton({ player }: { player: Player }) {
+export default function NicknameButton({
+	playerNickname,
+	playerId,
+}: { playerNickname: string; playerId: string }) {
 	const [formState, formAction, isPending] = useActionState(editNickname, null);
 
-	const [nickname, setNickname] = useState(player.nickname);
+	const [nickname, setNickname] = useState(playerNickname);
 	const isValidNickname = useMemo(() => {
 		return nicknameRegex.test(nickname);
 	}, [nickname]);
@@ -45,7 +48,7 @@ export default function NicknameButton({ player }: { player: Player }) {
 			<DialogTrigger asChild>
 				<Button variant="outline" size="sm">
 					<CircleUserRound className="h-6 w-6" />
-					<h2>{player.nickname}</h2>
+					<h2>{playerNickname}</h2>
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="max-w-xs">
@@ -74,7 +77,7 @@ export default function NicknameButton({ player }: { player: Player }) {
 								</p>
 							)}
 						</div>
-						<input hidden type="hidden" name="playerId" value={player.id} />
+						<input hidden type="hidden" name="playerId" value={playerId} />
 					</div>
 					<DialogFooter className="sm:justify-end mt-4">
 						<Button
@@ -83,7 +86,7 @@ export default function NicknameButton({ player }: { player: Player }) {
 								!isValidNickname ||
 								!nickname ||
 								isPending ||
-								nickname === player.nickname
+								nickname === playerNickname
 							}
 						>
 							Edit

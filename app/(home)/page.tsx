@@ -1,7 +1,7 @@
 import { createBar, joinBar } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { auth, signIn, signOut } from "@/auth";
-import { getPlayer } from "@/lib/user";
+import { getPlayerNickname } from "@/lib/user";
 import NicknameButton from "@/components/nickname-btn";
 import PixelCard from "@/components/card";
 import { CardType } from "../types";
@@ -12,9 +12,9 @@ export default async function Home() {
 	const session = await auth();
 	const user = session?.user;
 
-	const isSignedIn = user != null;
+	const isSignedIn = user?.id != null;
 
-	const player = await getPlayer(user?.id);
+	const playerNickname = await getPlayerNickname(user?.id);
 
 	return (
 		<>
@@ -34,7 +34,12 @@ export default async function Home() {
 			</div>
 			<div className="w-full p-4 absolute bottom-0">
 				<div className="flex items-center space-x-2">
-					{player != null && <NicknameButton player={player} />}
+					{playerNickname != null && user?.id != null && (
+						<NicknameButton
+							playerNickname={playerNickname}
+							playerId={user.id}
+						/>
+					)}
 				</div>
 			</div>
 			<div className="relative h-[150px] w-[140px] mb-4">
@@ -53,13 +58,7 @@ export default async function Home() {
 				<div className="flex flex-col items-stretch space-y-4">
 					<form action={createBar}>
 						<input type="hidden" name="createdBy.id" value={user.id} />
-						<input
-							hidden
-							type="hidden"
-							name="createdBy.nickname"
-							value={player?.nickname}
-						/>
-						<Button type="submit" disabled={player == null} className="w-full">
+						<Button type="submit" className="w-full">
 							Create Pub
 						</Button>
 					</form>

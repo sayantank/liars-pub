@@ -15,7 +15,7 @@ export default function CardHand() {
 	const { hand, player, socket, bar } = useBar();
 	const [selectedCards, setSelectedCards] = useState<Set<number>>(new Set());
 
-	if (hand == null || bar == null) {
+	if (hand == null) {
 		return null;
 	}
 

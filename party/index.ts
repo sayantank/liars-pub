@@ -1,4 +1,5 @@
 import {
+	AVATARS,
 	MAX_CLAIM_SIZE,
 	MAX_HAND_SIZE,
 	MAX_LIVES,
@@ -15,11 +16,16 @@ import {
 } from "@/app/types";
 import {
 	type CallOutMessage,
+	type ChangeAvatarMessage,
 	type ClaimCardsMessage,
 	clientMessageSchema,
 	type GuessRouletteMessage,
 } from "@/game/messages";
-import { getPlayerForTurn, getRandomNumber } from "@/lib/utils";
+import {
+	getPlayerForTurn,
+	getRandomAvatar,
+	getRandomNumber,
+} from "@/lib/utils";
 import { barSchema } from "@/lib/zod";
 import { getRedisKey } from "@/redis";
 import type * as Party from "partykit/server";
@@ -87,6 +93,7 @@ export default class Server implements Party.Server {
 			this.bar.players.push({
 				id: playerId,
 				nickname,
+				avatarIndex: getRandomAvatar().index,
 			});
 			// A websocket just connected!
 			console.log("Player joined", {
@@ -102,6 +109,8 @@ export default class Server implements Party.Server {
 		if (!this.bar) return;
 
 		try {
+			console.log(JSON.parse(rawMessage));
+
 			const message = clientMessageSchema.parse(JSON.parse(rawMessage));
 			switch (message.type) {
 				case "startGame": {
@@ -126,6 +135,10 @@ export default class Server implements Party.Server {
 				}
 				case "newRound": {
 					this.newRound();
+					break;
+				}
+				case "changeAvatar": {
+					this.changeAvatar(message);
 					break;
 				}
 			}
@@ -388,6 +401,40 @@ export default class Server implements Party.Server {
 
 		// Clear the stack
 		this.stack = [];
+	}
+
+	changeAvatar(message: ChangeAvatarMessage) {
+		if (this.bar == null) {
+			return;
+		}
+
+		const action = message.data.action;
+
+		// loop through every player looking for the one to update
+		for (const player of this.bar.players) {
+			// find the index for the active player
+			const activePlayerIndex = this.bar.activePlayers.findIndex(
+				(p) => p.id === player.id,
+			);
+
+			if (player.id === message.data.player.id) {
+				if (action === "next") {
+					player.avatarIndex = (player.avatarIndex + 1) % AVATARS.length;
+					// if the player is the active player, update the active player's avatar
+					if (activePlayerIndex !== -1) {
+						this.bar.activePlayers[activePlayerIndex].avatarIndex =
+							player.avatarIndex;
+					}
+				} else if (action === "prev") {
+					player.avatarIndex =
+						(player.avatarIndex - 1 + AVATARS.length) % AVATARS.length;
+					if (activePlayerIndex !== -1) {
+						this.bar.activePlayers[activePlayerIndex].avatarIndex =
+							player.avatarIndex;
+					}
+				}
+			}
+		}
 	}
 
 	startGame() {

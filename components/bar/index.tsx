@@ -7,18 +7,13 @@ import { MAX_PLAYERS, MIN_PLAYERS } from "@/app/consts";
 import CardHand from "./hand";
 import BarBanner from "./banner";
 import BarHeader from "./header";
-import PixelHeart from "../heart";
-import { CrownIcon } from "lucide-react";
+import BarPlayers from "./players";
 
 export default function BarUI() {
-	const { bar, player, socket, socketState, startGame } = useBar();
+	const { bar, socket, socketState, startGame } = useBar();
 
 	if (socketState === socket.CONNECTING) {
 		return <p>Connecting...</p>;
-	}
-
-	if (bar == null) {
-		return null;
 	}
 
 	return (
@@ -29,31 +24,14 @@ export default function BarUI() {
 			<div className="grow">
 				{!bar.isStarted ? (
 					<>
-						<div className="text-center space-y-2">
-							<small className="text-base">Players</small>
-							<div className="flex flex-col items-center space-y-1">
-								{bar.players.map((player) => {
-									const isWinner = bar.winner?.id === player.id;
-									return (
-										<div
-											key={player.id}
-											className="flex items-center space-x-2"
-										>
-											<p className="text-xl font-semibold">{player.nickname}</p>
-											{isWinner && (
-												<CrownIcon className="w-5 h-5 text-orange-400" />
-											)}
-										</div>
-									);
-								})}
-							</div>
-						</div>
+						<BarPlayers />
 						{bar.players.length >= MIN_PLAYERS &&
 							bar.players.length <= MAX_PLAYERS && (
 								<div className="w-full flex justify-center mt-12">
 									<Button
 										type="button"
-										className="sm:w-1/2 w-2/3"
+										className="w-1/3"
+										size="sm"
 										onClick={startGame}
 									>
 										Start Game

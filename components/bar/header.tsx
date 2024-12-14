@@ -7,10 +7,6 @@ import Link from "next/link";
 export default function BarHeader() {
 	const { bar, player } = useBar();
 
-	if (bar == null) {
-		return null;
-	}
-
 	const currentTurnPlayer = getPlayerForTurn(bar, bar.turn);
 
 	return (
