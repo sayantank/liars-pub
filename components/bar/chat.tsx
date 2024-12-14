@@ -7,7 +7,7 @@ import { sendChatMessageSchema } from "@/game/messages";
 import type { ChatMessage } from "@/app/types";
 import PixelCard from "../card";
 
-const CHAT_BUBBLE_DURATION = 10 * 1000; // 5 seconds
+const CHAT_BUBBLE_DURATION = 5 * 1000; // 5 seconds
 
 export default function BarChat() {
 	const { bar, player, socket } = useBar();
