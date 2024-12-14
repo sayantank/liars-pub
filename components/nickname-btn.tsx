@@ -43,7 +43,7 @@ export default function NicknameButton({ player }: { player: Player }) {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button variant="outline">
+				<Button variant="outline" size="sm">
 					<CircleUserRound className="h-6 w-6" />
 					<h2>{player.nickname}</h2>
 				</Button>

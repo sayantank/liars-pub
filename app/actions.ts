@@ -43,6 +43,8 @@ export async function createBar(formData: FormData) {
 	const bar: Bar = {
 		id,
 		isStarted: false,
+		roulette: null,
+		forceCallOut: false,
 		turn: 0,
 		tableType: null,
 		lastClaimCount: null,
@@ -54,6 +56,7 @@ export async function createBar(formData: FormData) {
 			},
 		],
 		activePlayers: [],
+		winner: null,
 	};
 
 	await fetch(`${PARTYKIT_URL}/party/${id}`, {
@@ -65,6 +68,16 @@ export async function createBar(formData: FormData) {
 	});
 
 	redirect(`/${id}`);
+}
+
+export async function joinBar(formData: FormData) {
+	const barId = formData.get("barId")?.toString();
+
+	if (barId == null || barId.length === 0) {
+		return;
+	}
+
+	redirect(`/${barId}`);
 }
 
 const editNicknameFormSchema = z.object({

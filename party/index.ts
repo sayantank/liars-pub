@@ -1,13 +1,26 @@
-import { MAX_PLAYERS } from "@/app/consts";
+import {
+	MAX_CLAIM_SIZE,
+	MAX_HAND_SIZE,
+	MAX_LIVES,
+	MAX_PLAYERS,
+	MIN_PLAYERS,
+} from "@/app/consts";
 import {
 	CardType,
+	RouletteStatus,
 	type Bar,
 	type Card,
 	type ChatMessage,
 	type Hand,
 } from "@/app/types";
-import { type ClaimCardsMessage, clientMessageSchema } from "@/game/messages";
-import { getPlayerForTurn } from "@/lib/utils";
+import {
+	type CallOutMessage,
+	type ClaimCardsMessage,
+	clientMessageSchema,
+	type GuessRouletteMessage,
+} from "@/game/messages";
+import { getPlayerForTurn, getRandomNumber } from "@/lib/utils";
+import { barSchema } from "@/lib/zod";
 import { getRedisKey } from "@/redis";
 import type * as Party from "partykit/server";
 
@@ -15,14 +28,20 @@ export default class Server implements Party.Server {
 	constructor(readonly room: Party.Room) {}
 
 	bar: Bar | undefined;
+	rouletteGuess: number | undefined;
 	hands: Hand[] = [];
 	stack: Card[] = [];
 
 	async onRequest(req: Party.Request) {
 		if (req.method === "POST") {
-			const bar = (await req.json()) as Bar;
-			this.bar = bar;
-			this.broadcastAndSave();
+			const requestData = await req.json();
+
+			try {
+				this.bar = barSchema.parse(requestData);
+				this.broadcastAndSave();
+			} catch (e) {
+				console.error(e);
+			}
 		}
 
 		if (this.bar) {
@@ -97,18 +116,24 @@ export default class Server implements Party.Server {
 					this.claimCards(message);
 					break;
 				}
+				case "callOut": {
+					this.callOut(message);
+					break;
+				}
+				case "guessRoulette": {
+					this.guessRoulette(message);
+					break;
+				}
+				case "newRound": {
+					this.newRound();
+					break;
+				}
 			}
 
 			this.broadcastAndSave();
 		} catch (e) {
 			console.error(e);
 		}
-	}
-
-	async onStart() {
-		this.bar = await this.room.storage.get<Bar>("bar");
-		this.hands = (await this.room.storage.get<Hand[]>("hands")) ?? [];
-		this.stack = (await this.room.storage.get<Card[]>("stack")) ?? [];
 	}
 
 	onClose(connection: Party.Connection): void | Promise<void> {
@@ -134,6 +159,10 @@ export default class Server implements Party.Server {
 
 	claimCards(message: ClaimCardsMessage) {
 		if (this.bar == null) {
+			return;
+		}
+
+		if (message.data.cards.length > MAX_CLAIM_SIZE) {
 			return;
 		}
 
@@ -163,88 +192,230 @@ export default class Server implements Party.Server {
 		this.stack = [];
 
 		// Add the cards to the stack
-		// And remove them from the player hand
-		for (const cardIndex of message.data.cards) {
-			this.stack.push(playerHand.cards[cardIndex]);
-			playerHand.cards.splice(cardIndex, 1);
-		}
+		this.stack = message.data.cards.map(
+			(cardIndex) => playerHand.cards[cardIndex],
+		);
+
+		const indicesToRemove = new Set(message.data.cards);
+		playerHand.cards = playerHand.cards.filter(
+			(_, index) => !indicesToRemove.has(index),
+		);
 
 		this.hands.push(playerHand);
 		this.bar.lastClaimCount = message.data.cards.length;
-		this.bar.turn += 1;
+
+		const numPlayersWithCards = this.bar.activePlayers.reduce((acc, player) => {
+			return acc + (this._getPlayerHand(player.id).cards.length > 0 ? 1 : 0);
+		}, 0);
+
+		// If there is only one player with cards left, force call out
+		if (playerHand.cards.length === 0 && numPlayersWithCards <= 1) {
+			this.bar.forceCallOut = true;
+		}
+
+		// Finding whose turn it is next
+		let turnIncrement = 1;
+		let nextPlayer = null;
+		do {
+			nextPlayer = getPlayerForTurn(this.bar, this.bar.turn + turnIncrement);
+			if (nextPlayer == null) {
+				throw new Error("Next player not found");
+			}
+
+			const nextPlayerHand = this._getPlayerHand(nextPlayer.id);
+
+			// If next player with cards found, stop loop
+			if (nextPlayerHand.cards.length > 0) {
+				break;
+			}
+
+			turnIncrement += 1;
+		} while (nextPlayer != null);
+
+		this.bar.turn += turnIncrement;
 	}
 
-	startGame() {
+	callOut(message: CallOutMessage) {
 		if (this.bar == null) {
 			return;
 		}
 
-		if (this.bar.players.length !== MAX_PLAYERS) {
+		if (this.bar.turn === 0) {
+			console.error("Cannot call out in the first turn", {
+				playerId: message.data.by.id,
+				room: this.room.id,
+			});
 			return;
 		}
 
-		// Set the table type
-		const cardTypes = [CardType.Ace, CardType.King, CardType.Queen];
-		const randomNumber = Math.floor(Math.random() * cardTypes.length);
-		this.bar.tableType = cardTypes[randomNumber];
+		const playerCallingOut = this._getActivePlayer(message.data.by.id);
+		const playerBeingCalledOut = getPlayerForTurn(this.bar, this.bar.turn - 1);
 
-		const cardCounts: Array<{ count: number; type: Card["type"] }> = [
-			{ count: 3, type: CardType.Ace },
-			{ count: 3, type: CardType.King },
-			{ count: 3, type: CardType.Queen },
-			{ count: 1, type: CardType.Joker },
-		];
-
-		const deck: Card[] = [];
-		for (const { count, type } of cardCounts) {
-			for (let i = 0; i < count; i++) {
-				deck.push({ type });
-			}
+		if (playerBeingCalledOut == null) {
+			return;
 		}
 
-		// Shuffle the deck
-		for (let i = deck.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[deck[i], deck[j]] = [deck[j], deck[i]];
-		}
+		this.bar.messages.push({
+			type: "text",
+			player: playerCallingOut,
+			message: `I'm calling out ${playerBeingCalledOut.nickname}! 👀`,
+			timestamp: Date.now(),
+		});
 
-		const handsMap = new Map<string, Hand>();
-
-		// Distribute the cards to the players
-		let nextCardToIndex = 0;
-		while (deck.length > 0) {
-			const nextCard = deck.pop();
-			if (nextCard == null) {
+		let wasLying = false;
+		for (const card of this.stack) {
+			if (card.type !== this.bar.tableType && card.type !== CardType.Joker) {
+				wasLying = true;
 				break;
 			}
+		}
 
-			const player = this.bar.players[nextCardToIndex];
+		this.bar.messages.push({
+			type: "showClaim",
+			player: playerBeingCalledOut,
+			cards: this.stack,
+			timestamp: Date.now(),
+		});
 
-			const hand = handsMap.get(player.id);
-			if (hand == null) {
-				handsMap.set(player.id, {
-					playerId: player.id,
-					cards: [nextCard],
+		const roulettePlayer = wasLying ? playerBeingCalledOut : playerCallingOut;
+
+		this.rouletteGuess = getRandomNumber(1, roulettePlayer.lives);
+
+		this.bar.roulette = {
+			player: roulettePlayer,
+			status: RouletteStatus.Guessing,
+		};
+	}
+
+	guessRoulette(message: GuessRouletteMessage) {
+		if (
+			this.bar == null ||
+			this.rouletteGuess == null ||
+			this.bar.roulette == null
+		) {
+			return;
+		}
+
+		if (this.bar.roulette.player.id !== message.data.player.id) {
+			console.error("Invalid player in roulette message", {
+				playerId: message.data.player.id,
+				roulettePlayer: this.bar.roulette.player.id,
+				room: this.room.id,
+			});
+
+			return;
+		}
+
+		// If the guess is not the same as the server number, the player is still alive
+		if (this.rouletteGuess !== message.data.guess) {
+			this.bar.roulette.status = RouletteStatus.Alive;
+
+			// reduce the player's lives
+			const playerIndex = this.bar.activePlayers.findIndex(
+				(p) => p.id === message.data.player.id,
+			);
+			if (playerIndex === -1) {
+				console.error("Player not found in active players", {
+					playerId: message.data.player.id,
+					room: this.room.id,
 				});
-			} else {
-				hand.cards.push(nextCard);
+				throw new Error("Player not found");
 			}
 
-			nextCardToIndex = (nextCardToIndex + 1) % this.bar.players.length;
+			this.bar.activePlayers[playerIndex].lives -= 1;
+
+			return;
 		}
 
-		this.hands = Array.from(handsMap.values());
+		// remove player from active players
+		const playerIndex = this.bar.activePlayers.findIndex(
+			(p) => p.id === message.data.player.id,
+		);
+		if (playerIndex === -1) {
+			console.error("Player not found in active players", {
+				playerId: message.data.player.id,
+				room: this.room.id,
+			});
+			return;
+		}
+		this.bar.activePlayers.splice(playerIndex, 1);
+		this.bar.roulette.status = RouletteStatus.Dead;
+	}
+
+	newRound() {
+		if (this.bar == null || this.rouletteGuess == null) {
+			return;
+		}
+
+		// If only one player is remaining, he/she is the winner
+		if (this.bar.activePlayers.length === 1) {
+			this.rouletteGuess = undefined;
+			this.bar = {
+				id: this.bar.id,
+				isStarted: false,
+				roulette: null,
+				forceCallOut: false,
+				turn: 0,
+				tableType: null,
+				lastClaimCount: null,
+				messages: this.bar.messages,
+				players: this.bar.players,
+				activePlayers: [],
+				// Set the winner
+				winner: this.bar.activePlayers[0],
+			};
+			return;
+		}
+
+		// Reset the roulette
+		this.rouletteGuess = undefined;
+		this.bar.roulette = null;
+
+		// Reset the table type
+		this.bar.tableType = this._getRandomCardType();
+
+		// Distribute a new deck
+		const deck = this._getNewDeck();
+		this.hands = this._distributeDeck(deck);
+
+		// Shuffle the active players
+		this._shuffle(this.bar.activePlayers);
+
+		// Reset the bar configs
+		this.bar.turn = 0;
+		this.bar.lastClaimCount = null;
+		this.bar.forceCallOut = false;
+
+		// Clear the stack
+		this.stack = [];
+	}
+
+	startGame() {
+		console.log("startGame");
+		if (this.bar == null) {
+			return;
+		}
+
+		if (
+			this.bar.players.length < MIN_PLAYERS ||
+			this.bar.players.length > MAX_PLAYERS
+		) {
+			return;
+		}
+
+		// Reset the winner
+		this.bar.winner = null;
+
+		// Set the table type
+		this.bar.tableType = this._getRandomCardType();
 
 		// Shuffle the players and set it to activePlayers
-		this.bar.activePlayers = [...this.bar.players];
+		this.bar.activePlayers = this._shuffle([
+			...this.bar.players.map((p) => ({ ...p, lives: MAX_LIVES })),
+		]);
 
-		for (let i = this.bar.activePlayers.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[this.bar.activePlayers[i], this.bar.activePlayers[j]] = [
-				this.bar.activePlayers[j],
-				this.bar.activePlayers[i],
-			];
-		}
+		const deck = this._getNewDeck();
+		this.hands = this._distributeDeck(deck);
 
 		this.bar.isStarted = true;
 		this.bar.turn = 0;
@@ -258,11 +429,23 @@ export default class Server implements Party.Server {
 		this.bar.messages.push(message);
 	}
 
+	resetHands() {}
+
+	async onStart() {
+		this.bar = await this.room.storage.get<Bar>("bar");
+		this.hands = (await this.room.storage.get<Hand[]>("hands")) ?? [];
+		this.stack = (await this.room.storage.get<Card[]>("stack")) ?? [];
+		this.rouletteGuess = await this.room.storage.get<number>("rouletteGuess");
+	}
+
 	async broadcastAndSave() {
 		this._broadcast();
 
-		if (this.bar) {
+		if (this.bar != null) {
 			await this.room.storage.put<Bar>("bar", this.bar);
+		}
+		if (this.rouletteGuess != null) {
+			await this.room.storage.put<number>("rouletteGuess", this.rouletteGuess);
 		}
 		await this.room.storage.put<Card[]>("stack", this.stack);
 		await this.room.storage.put<Hand[]>("hands", this.hands);
@@ -281,6 +464,104 @@ export default class Server implements Party.Server {
 				);
 			}
 		}
+	}
+
+	_getRandomCardType() {
+		// Set the table type
+		const cardTypes = [CardType.Ace, CardType.King, CardType.Queen];
+		const randomNumber = Math.floor(Math.random() * cardTypes.length);
+
+		return cardTypes[randomNumber];
+	}
+
+	_getNewDeck() {
+		const cardCounts: Array<{ count: number; type: Card["type"] }> = [
+			{ count: 6, type: CardType.Ace },
+			{ count: 6, type: CardType.King },
+			{ count: 6, type: CardType.Queen },
+			{ count: 2, type: CardType.Joker },
+		];
+
+		const deck: Card[] = [];
+		for (const { count, type } of cardCounts) {
+			for (let i = 0; i < count; i++) {
+				deck.push({ type });
+			}
+		}
+
+		// Shuffle the deck
+		this._shuffle(deck);
+
+		return deck;
+	}
+
+	_distributeDeck(deck: Card[]) {
+		if (this.bar == null) {
+			throw new Error("Bar is null");
+		}
+
+		const handsMap = new Map<string, Hand>();
+
+		for (let i = 0; i < MAX_HAND_SIZE; i++) {
+			for (const player of this.bar.activePlayers) {
+				const nextCard = deck.pop();
+				if (nextCard == null) {
+					throw new Error("Deck is empty");
+				}
+
+				const hand = handsMap.get(player.id);
+				if (hand == null) {
+					handsMap.set(player.id, {
+						playerId: player.id,
+						cards: [nextCard],
+					});
+				} else {
+					hand.cards.push(nextCard);
+				}
+			}
+		}
+
+		return Array.from(handsMap.values());
+	}
+
+	_getPlayerHand(playerId: string) {
+		const playerHandIndex = this.hands.findIndex(
+			(hand) => hand.playerId === playerId,
+		);
+		if (playerHandIndex === -1) {
+			console.error("Player hand not found", {
+				playerId,
+				room: this.room.id,
+			});
+			throw new Error("Player hand not found");
+		}
+
+		return this.hands[playerHandIndex];
+	}
+
+	_getActivePlayer(id: string) {
+		if (this.bar == null) {
+			throw new Error("Bar is null");
+		}
+
+		const playerIndex = this.bar.activePlayers.findIndex((p) => p.id === id);
+		if (playerIndex === -1) {
+			console.error("Player not found in active players", {
+				playerId: id,
+				room: this.room.id,
+			});
+			throw new Error("Player not found");
+		}
+
+		return this.bar.activePlayers[playerIndex];
+	}
+
+	_shuffle<T>(array: Array<T>) {
+		for (let i = array.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[array[i], array[j]] = [array[j], array[i]];
+		}
+		return array;
 	}
 }
 

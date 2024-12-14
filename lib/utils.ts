@@ -28,3 +28,18 @@ export function getPlayerForTurn(bar: Bar, turn: number) {
 
 	return bar.activePlayers[turn % bar.activePlayers.length];
 }
+
+export function getRandomNumber(min: number, max: number) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function getRandomCardType() {
+	const cardTypes = [
+		CardType.Ace,
+		CardType.King,
+		CardType.Queen,
+		CardType.Joker,
+	];
+
+	return cardTypes[getRandomNumber(0, cardTypes.length - 1)];
+}

@@ -1,15 +1,16 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useMemo } from "react";
 import type PartySocket from "partysocket";
 import { PARTYKIT_HOST } from "@/app/env";
 import type { Hand, Bar, Player } from "@/app/types";
 import usePartySocket from "partysocket/react";
 import { useEffect, useState } from "react";
 import type { StartGameMessage } from "@/game/messages";
+import { MAX_LIVES } from "@/app/consts";
 
 export type BarContextType = {
-	player: Player;
+	player: Player & { lives: number };
 	bar: Bar | null;
 	hand: Hand | null;
 	socket: PartySocket;
@@ -51,6 +52,19 @@ export default function BarProvider({
 	const [bar, setBar] = useState<Bar | null>(null);
 	const [hand, setHand] = useState<Hand | null>(null);
 
+	const playerWithLives = useMemo(() => {
+		if (bar == null) {
+			return { ...player, lives: MAX_LIVES };
+		}
+
+		const activePlayer = bar.activePlayers.find((p) => p.id === player.id);
+		if (activePlayer == null) {
+			return { ...player, lives: 0 };
+		}
+
+		return activePlayer;
+	}, [bar, player]);
+
 	useEffect(() => {
 		socket.onopen = () => {
 			setSocketState(socket.OPEN);
@@ -70,7 +84,7 @@ export default function BarProvider({
 	return (
 		<BarContext.Provider
 			value={{
-				player,
+				player: playerWithLives,
 				bar,
 				hand,
 				socket,

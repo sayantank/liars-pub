@@ -28,15 +28,32 @@ export const callOutMessageSchema = z.object({
 	}),
 });
 
+export const guessRouletteMessageSchema = z.object({
+	type: z.literal("guessRoulette"),
+	data: z.object({
+		player: playerSchema,
+		guess: z.number(),
+	}),
+});
+
+export const newRoundMessageSchema = z.object({
+	type: z.literal("newRound"),
+});
+
 export const clientMessageSchema = z.discriminatedUnion("type", [
 	startGameMessageSchema,
 	sendChatMessageSchema,
 	claimCardsMessageSchema,
 	callOutMessageSchema,
+	guessRouletteMessageSchema,
+	newRoundMessageSchema,
 ]);
 
 export type StartGameMessage = z.infer<typeof startGameMessageSchema>;
 export type SendChatMessage = z.infer<typeof sendChatMessageSchema>;
 export type ClaimCardsMessage = z.infer<typeof claimCardsMessageSchema>;
+export type CallOutMessage = z.infer<typeof callOutMessageSchema>;
+export type GuessRouletteMessage = z.infer<typeof guessRouletteMessageSchema>;
+export type NewRoundMessage = z.infer<typeof newRoundMessageSchema>;
 
 export type ClientMessage = z.infer<typeof clientMessageSchema>;

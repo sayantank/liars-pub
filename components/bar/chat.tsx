@@ -5,8 +5,9 @@ import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { sendChatMessageSchema } from "@/game/messages";
 import type { ChatMessage } from "@/app/types";
+import PixelCard from "../card";
 
-const CHAT_BUBBLE_DURATION = 3 * 1000; // 5 seconds
+const CHAT_BUBBLE_DURATION = 10 * 1000; // 5 seconds
 
 export default function BarChat() {
 	const { bar, player, socket } = useBar();
@@ -57,7 +58,10 @@ export default function BarChat() {
 		<div className="relative">
 			<div className="absolute bottom-20 w-full space-y-4 z-10">
 				{messages.map((msg) => (
-					<ChatBubble key={msg.timestamp} msg={msg} />
+					<ChatBubble
+						key={`chatBubble-${msg.timestamp}-${msg.player.id}`}
+						msg={msg}
+					/>
 				))}
 			</div>
 
@@ -106,13 +110,43 @@ function ChatBubble({ msg }: { msg: ChatMessage }) {
 		return null;
 	}
 
-	if (msg.type !== "text") {
-		return null;
+	function MessageContent() {
+		switch (msg.type) {
+			case "text": {
+				return (
+					<>
+						<small className="text-xs w-min mb-1.5">
+							{msg.player.nickname}
+						</small>
+						<p className="max-w-full break-words">{msg.message}</p>
+					</>
+				);
+			}
+			case "showClaim": {
+				return (
+					<>
+						<small className="text-xs w-min mb-1.5">
+							{msg.player.nickname}
+						</small>
+						<div className="flex items-center space-x-2">
+							{msg.cards.map((card, index) => (
+								<PixelCard
+									key={`claimCard-${msg.player.id}-${index}`}
+									type={card.type}
+									width={60}
+									height={84}
+								/>
+							))}
+						</div>
+					</>
+				);
+			}
+		}
 	}
 
 	return (
 		<div
-			key={msg.timestamp}
+			key={`${msg.timestamp}-${msg.player.id}`}
 			className={cn(
 				"w-full flex items-center transition-opacity duration-1000",
 				isVisible ? "opacity-100" : "opacity-0",
@@ -125,8 +159,7 @@ function ChatBubble({ msg }: { msg: ChatMessage }) {
 					msg.player.id === player.id ? "items-end" : "items-start",
 				)}
 			>
-				<small className="text-xs w-min mb-1">{msg.player.nickname}</small>
-				<p className="max-w-full break-words">{msg.message}</p>
+				<MessageContent />
 			</div>
 		</div>
 	);

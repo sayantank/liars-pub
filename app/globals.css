@@ -81,3 +81,19 @@ body {
 		scrollbar-width: none; /* Firefox */
 	}
 }
+
+@keyframes shuffle {
+	0% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-20px);
+	}
+	100% {
+		transform: translateY(0);
+	}
+}
+
+.animate-shuffle {
+	animation: shuffle 1s ease-in-out infinite;
+}

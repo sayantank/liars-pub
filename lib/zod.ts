@@ -1,5 +1,5 @@
 import { nicknameRegex } from "@/app/consts";
-import { CardType } from "@/app/types";
+import { CardType, RouletteStatus } from "@/app/types";
 import { z } from "zod";
 
 export const playerSchema = z.object({
@@ -25,14 +25,34 @@ export const showClaimMessageSchema = z.object({
 	timestamp: z.number(),
 });
 
-export const deathMessageSchema = z.object({
-	type: z.literal("death"),
-	player: playerSchema,
-	timestamp: z.number(),
-});
-
 export const chatMessageSchema = z.discriminatedUnion("type", [
 	textMessageSchema,
 	showClaimMessageSchema,
-	deathMessageSchema,
 ]);
+
+export const barSchema = z.object({
+	id: z.string(),
+	isStarted: z.boolean(),
+	forceCallOut: z.boolean(),
+
+	roulette: z
+		.object({
+			player: playerSchema,
+			status: z.nativeEnum(RouletteStatus),
+		})
+		.nullable(),
+
+	turn: z.number(),
+	tableType: z.nativeEnum(CardType).nullable(),
+	lastClaimCount: z.number().nullable(),
+
+	players: z.array(playerSchema),
+	activePlayers: z.array(
+		playerSchema.extend({
+			lives: z.number(),
+		}),
+	),
+	winner: playerSchema.nullable(),
+
+	messages: z.array(chatMessageSchema),
+});
