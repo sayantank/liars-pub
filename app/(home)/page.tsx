@@ -48,7 +48,7 @@ export default async function Home() {
 					<PixelCard type={CardType.King} />
 				</div>
 			</div>
-			<h1 className="text-xl mb-8">Liar's Browser</h1>
+			<h1 className="text-xl mb-8">Liar's Pub</h1>
 			{isSignedIn ? (
 				<div className="flex flex-col items-stretch space-y-4">
 					<form action={createBar}>
@@ -60,12 +60,12 @@ export default async function Home() {
 							value={player?.nickname}
 						/>
 						<Button type="submit" disabled={player == null} className="w-full">
-							Create Bar
+							Create Pub
 						</Button>
 					</form>
 					<form action={joinBar}>
 						<div className="relative">
-							<Input type="text" name="barId" placeholder="Join Bar.." />
+							<Input type="text" name="barId" placeholder="Join Pub..." />
 							<button
 								type="submit"
 								className="absolute right-0 top-0 h-full px-3 group"
