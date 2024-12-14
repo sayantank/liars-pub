@@ -13,7 +13,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 	adapter: UpstashRedisAdapter(redis, {
 		baseKeyPrefix: redisKeyPrefix,
 	}),
-	providers: [Google],
+
+	// TODO(sk): look for allowing pkce
+	providers: [Google({ checks: ["none"] })],
+
 	callbacks: {
 		async signIn({ user }) {
 			try {
