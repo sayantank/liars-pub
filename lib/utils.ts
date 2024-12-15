@@ -1,3 +1,4 @@
+import { AVATARS } from "@/app/consts";
 import { CardType, type Bar } from "@/app/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -22,7 +23,7 @@ export function getCardTypeLabel(type: CardType) {
 }
 
 export function getPlayerForTurn(bar: Bar, turn: number) {
-	if (bar == null || bar.activePlayers.length === 0) {
+	if (bar.activePlayers.length === 0) {
 		return null;
 	}
 
@@ -42,4 +43,23 @@ export function getRandomCardType() {
 	];
 
 	return cardTypes[getRandomNumber(0, cardTypes.length - 1)];
+}
+
+export function getRandomAvatar() {
+	const index = getRandomNumber(0, AVATARS.length - 1);
+	return {
+		index,
+		avatar: AVATARS[index],
+	};
+}
+
+export function chunk<T>(arr: T[], size: number): T[][] {
+	return arr.reduce((acc, _, i) => {
+		if (i % size === 0) {
+			acc.push([]);
+		}
+
+		acc[acc.length - 1].push(arr[i]);
+		return acc;
+	}, [] as T[][]);
 }

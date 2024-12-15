@@ -5,6 +5,7 @@ import { z } from "zod";
 export const playerSchema = z.object({
 	id: z.string(),
 	nickname: z.string().regex(nicknameRegex),
+	avatarIndex: z.number(),
 });
 
 export const cardSchema = z.object({
@@ -54,5 +55,5 @@ export const barSchema = z.object({
 	),
 	winner: playerSchema.nullable(),
 
-	messages: z.array(chatMessageSchema),
+	messages: z.record(chatMessageSchema),
 });

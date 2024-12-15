@@ -1,6 +1,6 @@
 import { useBar } from "./provider";
 import PixelCard from "../card";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Button } from "../ui/button";
 import type {
 	CallOutMessage,
@@ -9,15 +9,21 @@ import type {
 } from "@/game/messages";
 import { cn, getPlayerForTurn, getRandomCardType } from "@/lib/utils";
 import { MAX_CLAIM_SIZE } from "@/app/consts";
-import { CardType, RouletteStatus } from "@/app/types";
+import { RouletteStatus } from "@/app/types";
+import useIsMobile from "@/hooks/useIsMobile";
 
 export default function CardHand() {
 	const { hand, player, socket, bar } = useBar();
 	const [selectedCards, setSelectedCards] = useState<Set<number>>(new Set());
+	const isMobile = useIsMobile();
 
-	if (hand == null || bar == null) {
+	if (hand == null) {
 		return null;
 	}
+
+	const height = isMobile ? 84 : 105;
+	const width = isMobile ? 60 : 75;
+	const cardGap = isMobile ? 70 : 70;
 
 	const isGuessing =
 		bar.roulette != null &&
@@ -88,7 +94,7 @@ export default function CardHand() {
 		socket.send(JSON.stringify(message));
 	}
 
-	const totalWidth = (hand.cards.length - 1) * 60 + 100;
+	const totalWidth = (hand.cards.length - 1) * cardGap + width;
 
 	if (isGuessing) {
 		return (
@@ -99,7 +105,7 @@ export default function CardHand() {
 							key={`guess-${index}`}
 							type="button"
 							variant="outline"
-							className="h-24 w-24 sm:h-32 sm:w-32 text-3xl"
+							className="h-16 w-16 sm:h-32 sm:w-32 text-xl sm:text-3xl"
 							onClick={() => handleGuessRoulette(index + 1)}
 						>
 							{index + 1}
@@ -125,15 +131,15 @@ export default function CardHand() {
 			{!isShuffling ? (
 				<>
 					<div
-						className="relative h-[140px] mx-auto mb-8"
-						style={{ width: `${totalWidth}px` }}
+						className={"relative mx-auto mb-6 sm:mb-8"}
+						style={{ width: `${totalWidth}px`, height: `${height}px` }}
 					>
 						{hand.cards.map((card, index) => (
 							<div
 								key={`handCard-${index}`}
 								className="absolute transition-all duration-200 ease-in-out cursor-pointer md:hover:translate-y-[-10px]"
 								style={{
-									left: `${index * 60}px`,
+									left: `${index * cardGap}px`,
 									transform: selectedCards.has(index)
 										? "translateY(-30px)"
 										: undefined,
@@ -146,12 +152,12 @@ export default function CardHand() {
 									}
 								}}
 							>
-								<PixelCard type={card.type} width={100} height={140} />
+								<PixelCard type={card.type} width={width} height={height} />
 							</div>
 						))}
 					</div>
 					{bar.roulette == null && (
-						<h2>
+						<h2 className="text-sm sm:text-base">
 							{currentTurnPlayer?.id === player.id
 								? "Pick your cards"
 								: "Your hand"}
@@ -160,29 +166,34 @@ export default function CardHand() {
 				</>
 			) : (
 				<div
-					className="relative h-[140px] mx-auto mb-8"
-					style={{ width: `${4 * 60 + 100}px` }}
+					className={"relative mx-auto mb-6 sm:mb-8"}
+					style={{ width: `${4 * cardGap + width}px`, height: `${height}px` }}
 				>
 					{Array.from({ length: 5 }).map((_, index) => (
 						<div
 							key={`shuffle-card-${index}`}
 							className="absolute animate-shuffle"
 							style={{
-								left: `${index * 60}px`,
+								left: `${index * cardGap}px`,
 								animation: "shuffle 1s ease-in-out infinite",
 								animationDelay: `${index * 0.2}s`,
 							}}
 						>
-							<PixelCard type={getRandomCardType()} width={100} height={140} />
+							<PixelCard
+								type={getRandomCardType()}
+								width={width}
+								height={height}
+							/>
 						</div>
 					))}
 				</div>
 			)}
-			<div className="flex space-x-2 w-full mt-8">
+			<div className="flex space-x-2 w-full mt-6 sm:mt-8">
 				<Button
 					type="button"
 					className="flex-1"
 					onClick={handleClaimCards}
+					size={isMobile ? "sm" : undefined}
 					disabled={
 						currentTurnPlayer == null ||
 						currentTurnPlayer.id !== player.id ||
@@ -195,6 +206,7 @@ export default function CardHand() {
 				<Button
 					type="button"
 					className="flex-1"
+					size={isMobile ? "sm" : undefined}
 					onClick={handleCallOut}
 					disabled={
 						currentTurnPlayer == null ||

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { nicknameRegex } from "./consts";
 import { getRedisKey } from "@/redis";
 import { revalidateTag } from "next/cache";
+import { getRandomAvatar } from "@/lib/utils";
 
 const randomId = () => Math.random().toString(36).substring(2, 10);
 
@@ -21,24 +22,8 @@ export type FormActionState =
 	  }
 	| null;
 
-const createBarFormSchema = z.object({
-	id: z.string(),
-	playerId: z.string(),
-	nickname: z.string().regex(nicknameRegex),
-});
-export async function createBar(formData: FormData) {
+export async function createBar(_: FormData) {
 	const id = randomId();
-
-	const createBarForm = createBarFormSchema.safeParse({
-		id,
-		playerId: formData.get("createdBy.id"),
-		nickname: formData.get("createdBy.nickname"),
-	});
-
-	if (!createBarForm.success) {
-		console.error("Failed to validate form", createBarForm.error);
-		throw new Error("Failed to validate form");
-	}
 
 	const bar: Bar = {
 		id,
@@ -48,13 +33,8 @@ export async function createBar(formData: FormData) {
 		turn: 0,
 		tableType: null,
 		lastClaimCount: null,
-		messages: [],
-		players: [
-			{
-				id: createBarForm.data.playerId,
-				nickname: createBarForm.data.nickname,
-			},
-		],
+		messages: {},
+		players: [],
 		activePlayers: [],
 		winner: null,
 	};

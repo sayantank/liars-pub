@@ -7,8 +7,8 @@ import { MAX_PLAYERS, MIN_PLAYERS } from "@/app/consts";
 import CardHand from "./hand";
 import BarBanner from "./banner";
 import BarHeader from "./header";
-import PixelHeart from "../heart";
-import { CrownIcon } from "lucide-react";
+import BarPlayers from "./players";
+import { cn } from "@/lib/utils";
 
 export default function BarUI() {
 	const { bar, player, socket, socketState, startGame } = useBar();
@@ -17,53 +17,37 @@ export default function BarUI() {
 		return <p>Connecting...</p>;
 	}
 
-	if (bar == null) {
-		return null;
-	}
-
 	return (
 		<>
 			<BarHeader />
-			<BarBanner className="mb-16" />
+			<BarBanner className="mb-12 sm:mb-16" />
 
-			<div className="grow">
-				{!bar.isStarted ? (
-					<>
-						<div className="text-center space-y-2">
-							<small className="text-base">Players</small>
-							<div className="flex flex-col items-center space-y-1">
-								{bar.players.map((player) => {
-									const isWinner = bar.winner?.id === player.id;
-									return (
-										<div
-											key={player.id}
-											className="flex items-center space-x-2"
-										>
-											<p className="text-xl font-semibold">{player.nickname}</p>
-											{isWinner && (
-												<CrownIcon className="w-5 h-5 text-orange-400" />
-											)}
-										</div>
-									);
-								})}
-							</div>
-						</div>
-						{bar.players.length >= MIN_PLAYERS &&
-							bar.players.length <= MAX_PLAYERS && (
-								<div className="w-full flex justify-center mt-12">
-									<Button
-										type="button"
-										className="sm:w-1/2 w-2/3"
-										onClick={startGame}
-									>
-										Start Game
-									</Button>
-								</div>
-							)}
-					</>
-				) : (
-					<CardHand />
+			<div
+				className={cn(
+					"grow flex flex-col",
+					bar.isStarted ? "justify-between" : "justify-end",
 				)}
+			>
+				{bar.isStarted && (
+					<div className="">
+						<CardHand />
+					</div>
+				)}
+				{!bar.isStarted &&
+					bar.players.length >= MIN_PLAYERS &&
+					bar.players.length <= MAX_PLAYERS && (
+						<div className="w-full flex justify-center mt-12">
+							<Button
+								type="button"
+								className="w-1/3"
+								size="sm"
+								onClick={startGame}
+							>
+								Start Game
+							</Button>
+						</div>
+					)}
+				<BarPlayers className="mb-6 min-h-36" />
 			</div>
 
 			<div className="min-h-0">

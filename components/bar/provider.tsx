@@ -7,11 +7,10 @@ import type { Hand, Bar, Player } from "@/app/types";
 import usePartySocket from "partysocket/react";
 import { useEffect, useState } from "react";
 import type { StartGameMessage } from "@/game/messages";
-import { MAX_LIVES } from "@/app/consts";
 
 export type BarContextType = {
 	player: Player & { lives: number };
-	bar: Bar | null;
+	bar: Bar;
 	hand: Hand | null;
 	socket: PartySocket;
 	socketState: PartySocket["readyState"];
@@ -22,19 +21,28 @@ const BarContext = createContext<BarContextType | null>(null);
 
 export default function BarProvider({
 	children,
-	player,
 	barId,
-}: { children: React.ReactNode; player: Player; barId: string }) {
+}: { children: React.ReactNode; barId: string }) {
+	const [bar, setBar] = useState<Bar | null>(null);
+	const [hand, setHand] = useState<Hand | null>(null);
+	const [player, setPlayer] = useState<(Player & { lives: number }) | null>(
+		null,
+	);
+
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
 		room: barId,
-		id: player.id,
 		onMessage(event) {
 			try {
 				const eventData = JSON.parse(event.data);
 				switch (eventData.type) {
 					case "bar": {
 						setBar(eventData.data);
+						for (const player of eventData.data.players) {
+							if (player.id === socket.id) {
+								setPlayer(player);
+							}
+						}
 						break;
 					}
 					case "hand": {
@@ -49,12 +57,11 @@ export default function BarProvider({
 	});
 
 	const [socketState, setSocketState] = useState(socket.CONNECTING);
-	const [bar, setBar] = useState<Bar | null>(null);
-	const [hand, setHand] = useState<Hand | null>(null);
 
 	const playerWithLives = useMemo(() => {
-		if (bar == null) {
-			return { ...player, lives: MAX_LIVES };
+		if (bar == null || player == null) {
+			// NOTE: this shouldnt matter
+			return null;
 		}
 
 		const activePlayer = bar.activePlayers.find((p) => p.id === player.id);
@@ -79,6 +86,11 @@ export default function BarProvider({
 			type: "startGame",
 		};
 		socket.send(JSON.stringify(message));
+	}
+
+	if (playerWithLives == null || bar == null) {
+		console.warn("Missing player or bar");
+		return null;
 	}
 
 	return (

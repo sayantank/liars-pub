@@ -1,7 +1,8 @@
-import type { Player } from "@/app/types";
 import { getRedisKey } from "@/redis";
 
-export async function getPlayer(playerId?: string): Promise<Player | null> {
+export async function getPlayerNickname(
+	playerId?: string,
+): Promise<string | null> {
 	if (playerId == null) {
 		return null;
 	}
@@ -34,8 +35,5 @@ export async function getPlayer(playerId?: string): Promise<Player | null> {
 		return null;
 	}
 
-	return {
-		id: playerId,
-		nickname,
-	};
+	return nickname;
 }

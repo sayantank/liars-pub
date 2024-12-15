@@ -8,11 +8,6 @@ import { CopyToClipboard } from "../copy-to-clipboard";
 
 export default function BarBanner({ className }: { className?: string }) {
 	const { bar, socket, player } = useBar();
-
-	if (bar == null) {
-		return null;
-	}
-
 	const lastTurnPlayer = getPlayerForTurn(bar, bar.turn - 1);
 
 	useEffect(() => {
@@ -37,16 +32,16 @@ export default function BarBanner({ className }: { className?: string }) {
 	return (
 		<div
 			className={cn(
-				"mt-4 rounded-md border-2 border-primary shadow-md p-4 flex flex-col items-center justify-center min-h-24",
+				"mt-4 rounded-md border-2 border-primary shadow-md p-4 flex flex-col items-center justify-center min-h-20 sm:min-h-20",
 				className,
 			)}
 		>
 			{bar.roulette == null ? (
 				!bar.isStarted ? (
 					<>
-						<small className="text-base">Bar ID</small>
+						<small className="text-xs sm:text-base">Bar ID</small>
 						<div className="flex items-center space-x-2 relative">
-							<h1 className="text-3xl font-semibold">{bar.id}</h1>
+							<h1 className="text-xl sm:text-2xl font-semibold">{bar.id}</h1>
 							<CopyToClipboard
 								value={bar.id}
 								className="absolute -right-11 top-0"
@@ -56,22 +51,22 @@ export default function BarBanner({ className }: { className?: string }) {
 						</div>
 					</>
 				) : bar.lastClaimCount == null ? (
-					<h1 className="text-3xl font-semibold">
+					<h1 className="text-xl sm:text-2xl font-semibold">
 						{getCardTypeLabel(bar.tableType!)}'s Table
 					</h1>
 				) : lastTurnPlayer != null ? (
 					<>
-						<small className="text-base">
+						<small className="text-xs sm:text-base">
 							{lastTurnPlayer.nickname} has claimed
 						</small>
-						<h1 className="text-3xl font-semibold">
+						<h1 className="text-xl sm:text-2xl font-semibold">
 							{bar.lastClaimCount} {getCardTypeLabel(bar.tableType!)}
 							{bar.lastClaimCount > 1 ? "s" : ""}
 						</h1>
 					</>
 				) : null
 			) : bar.roulette.status === RouletteStatus.Guessing ? (
-				<h1 className="text-2xl font-semibold">
+				<h1 className="text-lg sm:text-2xl font-semibold">
 					{bar.roulette.player.nickname} is guessing...
 				</h1>
 			) : (

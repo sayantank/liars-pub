@@ -1,3 +1,4 @@
+import { nicknameRegex } from "@/app/consts";
 import { playerSchema } from "@/lib/zod";
 import { z } from "zod";
 
@@ -40,6 +41,22 @@ export const newRoundMessageSchema = z.object({
 	type: z.literal("newRound"),
 });
 
+export const changeAvatarMessageSchema = z.object({
+	type: z.literal("changeAvatar"),
+	data: z.object({
+		player: playerSchema,
+		action: z.enum(["next", "prev"]),
+	}),
+});
+
+export const editNicknameMessageSchema = z.object({
+	type: z.literal("editNickname"),
+	data: z.object({
+		playerId: z.string(),
+		nickname: z.string().regex(nicknameRegex),
+	}),
+});
+
 export const clientMessageSchema = z.discriminatedUnion("type", [
 	startGameMessageSchema,
 	sendChatMessageSchema,
@@ -47,6 +64,8 @@ export const clientMessageSchema = z.discriminatedUnion("type", [
 	callOutMessageSchema,
 	guessRouletteMessageSchema,
 	newRoundMessageSchema,
+	changeAvatarMessageSchema,
+	editNicknameMessageSchema,
 ]);
 
 export type StartGameMessage = z.infer<typeof startGameMessageSchema>;
@@ -55,5 +74,7 @@ export type ClaimCardsMessage = z.infer<typeof claimCardsMessageSchema>;
 export type CallOutMessage = z.infer<typeof callOutMessageSchema>;
 export type GuessRouletteMessage = z.infer<typeof guessRouletteMessageSchema>;
 export type NewRoundMessage = z.infer<typeof newRoundMessageSchema>;
+export type ChangeAvatarMessage = z.infer<typeof changeAvatarMessageSchema>;
+export type EditNicknameMessage = z.infer<typeof editNicknameMessageSchema>;
 
 export type ClientMessage = z.infer<typeof clientMessageSchema>;

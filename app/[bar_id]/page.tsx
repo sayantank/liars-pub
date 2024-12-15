@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import BarUI from "@/components/bar";
 import BarProvider from "@/components/bar/provider";
-import { getPlayer } from "@/lib/user";
 
 export default async function BarPage({
 	params,
@@ -15,13 +14,6 @@ export default async function BarPage({
 	params: Promise<{ bar_id: string }>;
 }) {
 	const barId = (await params).bar_id;
-
-	const session = await auth();
-	const user = session?.user;
-
-	if (user == null) {
-		redirect("/");
-	}
 
 	const req = await fetch(`${PARTYKIT_URL}/party/${barId}`, {
 		method: "GET",
@@ -39,10 +31,9 @@ export default async function BarPage({
 	}
 
 	const bar = (await req.json()) as Bar;
+	console.log(bar);
 
-	const isBarFull =
-		bar.players.length >= MAX_PLAYERS &&
-		bar.players.find((p) => p.id === user.id) == null;
+	const isBarFull = bar.players.length >= MAX_PLAYERS;
 
 	if (isBarFull) {
 		return (
@@ -55,14 +46,8 @@ export default async function BarPage({
 		);
 	}
 
-	const player = await getPlayer(user.id);
-
-	if (player == null) {
-		return null;
-	}
-
 	return (
-		<BarProvider player={player} barId={barId}>
+		<BarProvider barId={barId}>
 			<BarUI />
 		</BarProvider>
 	);
