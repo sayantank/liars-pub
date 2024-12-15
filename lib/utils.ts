@@ -52,3 +52,14 @@ export function getRandomAvatar() {
 		avatar: AVATARS[index],
 	};
 }
+
+export function chunk<T>(arr: T[], size: number): T[][] {
+	return arr.reduce((acc, _, i) => {
+		if (i % size === 0) {
+			acc.push([]);
+		}
+
+		acc[acc.length - 1].push(arr[i]);
+		return acc;
+	}, [] as T[][]);
+}

@@ -22,12 +22,7 @@ export type FormActionState =
 	  }
 	| null;
 
-const createBarFormSchema = z.object({
-	id: z.string(),
-	playerId: z.string(),
-	nickname: z.string().regex(nicknameRegex),
-});
-export async function createBar(formData: FormData) {
+export async function createBar(_: FormData) {
 	const id = randomId();
 
 	const bar: Bar = {
@@ -38,7 +33,7 @@ export async function createBar(formData: FormData) {
 		turn: 0,
 		tableType: null,
 		lastClaimCount: null,
-		messages: [],
+		messages: {},
 		players: [],
 		activePlayers: [],
 		winner: null,

@@ -55,5 +55,5 @@ export const barSchema = z.object({
 	),
 	winner: playerSchema.nullable(),
 
-	messages: z.array(chatMessageSchema),
+	messages: z.record(chatMessageSchema),
 });

@@ -20,6 +20,7 @@ import {
 	type ClaimCardsMessage,
 	clientMessageSchema,
 	type GuessRouletteMessage,
+	type SendChatMessage,
 } from "@/game/messages";
 import {
 	getPlayerForTurn,
@@ -27,8 +28,8 @@ import {
 	getRandomNumber,
 } from "@/lib/utils";
 import { barSchema } from "@/lib/zod";
-import { getRedisKey } from "@/redis";
 import type * as Party from "partykit/server";
+import { animals, uniqueNamesGenerator } from "unique-names-generator";
 
 export default class Server implements Party.Server {
 	constructor(readonly room: Party.Room) {}
@@ -61,43 +62,27 @@ export default class Server implements Party.Server {
 	}
 
 	async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
-		const playerId = conn.id;
-		const nicknameRedisKey = getRedisKey(`nickname:${playerId}`);
-
-		const response = await fetch(
-			`${process.env.UPSTASH_REDIS_URL}/get/${nicknameRedisKey}`,
-			{
-				headers: {
-					Authorization: `Bearer ${process.env.UPSTASH_REDIS_TOKEN}`,
-				},
-			},
-		);
-
-		if (!response.ok) {
-			console.error({
-				status: response.status,
-				body: await response.text(),
-			});
-			return;
-		}
-
-		const { result: nickname } = await response.json();
+		const connectionId = conn.id;
 
 		// If the player is not already in the bar, add them
 		if (
 			this.bar != null &&
 			this.bar.players.length < MAX_PLAYERS &&
-			this.bar.players.find((p) => p.id === playerId) == null &&
-			nickname != null
+			this.bar.players.find((p) => p.id === connectionId) == null
 		) {
-			this.bar.players.push({
-				id: playerId,
-				nickname,
+			const player = {
+				id: connectionId,
+				nickname: uniqueNamesGenerator({
+					dictionaries: [animals],
+				}),
 				avatarIndex: getRandomAvatar().index,
-			});
+			};
+
+			this.bar.players.push(player);
+
 			// A websocket just connected!
 			console.log("Player joined", {
-				playerId,
+				player,
 				room: this.room.id,
 			});
 		}
@@ -109,8 +94,6 @@ export default class Server implements Party.Server {
 		if (!this.bar) return;
 
 		try {
-			console.log(JSON.parse(rawMessage));
-
 			const message = clientMessageSchema.parse(JSON.parse(rawMessage));
 			switch (message.type) {
 				case "startGame": {
@@ -118,7 +101,7 @@ export default class Server implements Party.Server {
 					break;
 				}
 				case "chat": {
-					this.chat({ ...message.data, type: "text", timestamp: Date.now() });
+					this.chat(message);
 					break;
 				}
 				case "claimCards": {
@@ -154,18 +137,20 @@ export default class Server implements Party.Server {
 			return;
 		}
 
-		const playerId = connection.id;
-		const index = this.bar.players.findIndex((p) => p.id === playerId);
+		const connectionId = connection.id;
+		const index = this.bar.players.findIndex((p) => p.id === connectionId);
 
 		if (index === -1) {
 			return;
 		}
 
+		const player = this.bar.players[index];
+
 		this.bar.players.splice(index, 1);
 		this.broadcastAndSave();
 
 		console.log("Player left", {
-			playerId,
+			player,
 			room: this.room.id,
 		});
 	}
@@ -268,13 +253,12 @@ export default class Server implements Party.Server {
 			return;
 		}
 
-		this.bar.messages.push({
+		this.bar.messages[playerCallingOut.id] = {
 			type: "text",
 			player: playerCallingOut,
 			message: `I'm calling out ${playerBeingCalledOut.nickname}! 👀`,
 			timestamp: Date.now(),
-		});
-
+		};
 		let wasLying = false;
 		for (const card of this.stack) {
 			if (card.type !== this.bar.tableType && card.type !== CardType.Joker) {
@@ -283,13 +267,12 @@ export default class Server implements Party.Server {
 			}
 		}
 
-		this.bar.messages.push({
+		this.bar.messages[playerBeingCalledOut.id] = {
 			type: "showClaim",
 			player: playerBeingCalledOut,
 			cards: this.stack,
 			timestamp: Date.now(),
-		});
-
+		};
 		const roulettePlayer = wasLying ? playerBeingCalledOut : playerCallingOut;
 
 		this.rouletteGuess = getRandomNumber(1, roulettePlayer.lives);
@@ -468,12 +451,17 @@ export default class Server implements Party.Server {
 		this.bar.turn = 0;
 	}
 
-	chat(message: ChatMessage) {
+	chat(message: SendChatMessage) {
 		if (this.bar == null) {
 			return;
 		}
 
-		this.bar.messages.push(message);
+		this.bar.messages[message.data.player.id] = {
+			type: "text",
+			player: message.data.player,
+			message: message.data.message,
+			timestamp: Date.now(),
+		};
 	}
 
 	resetHands() {}

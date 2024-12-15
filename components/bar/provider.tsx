@@ -21,9 +21,8 @@ const BarContext = createContext<BarContextType | null>(null);
 
 export default function BarProvider({
 	children,
-	playerId,
 	barId,
-}: { children: React.ReactNode; playerId: string; barId: string }) {
+}: { children: React.ReactNode; barId: string }) {
 	const [bar, setBar] = useState<Bar | null>(null);
 	const [hand, setHand] = useState<Hand | null>(null);
 	const [player, setPlayer] = useState<(Player & { lives: number }) | null>(
@@ -33,7 +32,6 @@ export default function BarProvider({
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
 		room: barId,
-		id: playerId,
 		onMessage(event) {
 			try {
 				const eventData = JSON.parse(event.data);
@@ -41,7 +39,7 @@ export default function BarProvider({
 					case "bar": {
 						setBar(eventData.data);
 						for (const player of eventData.data.players) {
-							if (player.id === playerId) {
+							if (player.id === socket.id) {
 								setPlayer(player);
 							}
 						}

@@ -15,13 +15,6 @@ export default async function BarPage({
 }) {
 	const barId = (await params).bar_id;
 
-	const session = await auth();
-	const user = session?.user;
-
-	if (user == null) {
-		redirect("/");
-	}
-
 	const req = await fetch(`${PARTYKIT_URL}/party/${barId}`, {
 		method: "GET",
 		next: {
@@ -38,10 +31,9 @@ export default async function BarPage({
 	}
 
 	const bar = (await req.json()) as Bar;
+	console.log(bar);
 
-	const isBarFull =
-		bar.players.length >= MAX_PLAYERS &&
-		bar.players.find((p) => p.id === user.id) == null;
+	const isBarFull = bar.players.length >= MAX_PLAYERS;
 
 	if (isBarFull) {
 		return (
@@ -54,12 +46,8 @@ export default async function BarPage({
 		);
 	}
 
-	if (user.id == null) {
-		return null;
-	}
-
 	return (
-		<BarProvider playerId={user.id} barId={barId}>
+		<BarProvider barId={barId}>
 			<BarUI />
 		</BarProvider>
 	);
