@@ -13,20 +13,20 @@ import NicknameButton from "../nickname-btn";
 export default function BarPlayers({ className }: { className?: string }) {
 	const { bar } = useBar();
 
-	const numPlayersInRow = useMemo(() => {
-		const numPlayers = bar.players.length;
-		if (numPlayers % 3 === 0 || numPlayers > 4) {
-			return 3;
-		}
-		return 2;
-	}, [bar]);
-
 	return (
 		<div className={cn(className, "flex flex-col-reverse")}>
-			{chunk(bar.players, numPlayersInRow).map((row, index) => (
+			{chunk(
+				bar.players,
+				bar.players.length % 3 === 0 || bar.players.length > 4 ? 3 : 2,
+			).map((row, index) => (
 				<div
 					key={`player-row-${index}`}
-					className={cn("grid mt-6", `grid-cols-${numPlayersInRow}`)}
+					className={cn(
+						"grid mt-6",
+						bar.players.length % 3 === 0 || bar.players.length > 4
+							? "grid-cols-3"
+							: "grid-cols-2",
+					)}
 				>
 					{row.map((listPlayer) => {
 						return <PlayerDisplay key={listPlayer.id} player={listPlayer} />;
