@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Cone } from "lucide-react";
+import { ChevronLeft, ChevronRight, Cone, PencilIcon } from "lucide-react";
 import { useBar } from "./provider";
 import { AVATARS, CHAT_BUBBLE_DURATION, MOBILE_MIN_WIDTH } from "@/app/consts";
 import type { ChangeAvatarMessage } from "@/game/messages";
@@ -8,6 +8,7 @@ import { RouletteStatus, type ChatMessage, type Player } from "@/app/types";
 import useIsMobile from "@/hooks/useIsMobile";
 import PixelCard from "../card";
 import PixelHeart from "../heart";
+import NicknameButton from "../nickname-btn";
 
 export default function BarPlayers({ className }: { className?: string }) {
 	const { bar } = useBar();
@@ -137,7 +138,7 @@ function PlayerDisplay({ player }: { player: Player }) {
 	return (
 		<div
 			key={player.id}
-			className="flex flex-col items-center justify-end space-y-2 break-words w-full px-2"
+			className="flex flex-col items-center justify-end space-y-4 break-words w-full px-2"
 		>
 			{!isAvatarVisible && (
 				<div
@@ -178,13 +179,18 @@ function PlayerDisplay({ player }: { player: Player }) {
 					)}
 				</div>
 			)}
-			<div className="flex flex-col items-center space-y-1">
+			<div className="flex items-center space-x-2">
 				<p className="text-xs sm:text-sm font-semibold">{player.nickname}</p>
 				{bar.isStarted && (
 					<div className="flex items-center space-x-1">
 						<PixelHeart size={15} />
 						<h3 className="text-xs font-semibold">{playerLives}</h3>
 					</div>
+				)}
+				{!bar.isStarted && player.id === currentPlayer.id && (
+					<NicknameButton player={player}>
+						<PencilIcon className="w-4 h-4" />
+					</NicknameButton>
 				)}
 			</div>
 		</div>

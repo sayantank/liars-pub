@@ -19,6 +19,7 @@ import {
 	type ChangeAvatarMessage,
 	type ClaimCardsMessage,
 	clientMessageSchema,
+	type EditNicknameMessage,
 	type GuessRouletteMessage,
 	type SendChatMessage,
 } from "@/game/messages";
@@ -122,6 +123,10 @@ export default class Server implements Party.Server {
 				}
 				case "changeAvatar": {
 					this.changeAvatar(message);
+					break;
+				}
+				case "editNickname": {
+					this.editNickname(message);
 					break;
 				}
 			}
@@ -418,6 +423,25 @@ export default class Server implements Party.Server {
 				}
 			}
 		}
+	}
+
+	editNickname(message: EditNicknameMessage) {
+		if (this.bar == null) {
+			return;
+		}
+
+		const playerIndex = this.bar.players.findIndex(
+			(p) => p.id === message.data.playerId,
+		);
+		if (playerIndex === -1) {
+			console.error("Player not found in active players", {
+				playerId: message.data.playerId,
+				room: this.room.id,
+			});
+			return;
+		}
+
+		this.bar.players[playerIndex].nickname = message.data.nickname;
 	}
 
 	startGame() {

@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "./ui/button";
-import { CircleUserRound } from "lucide-react";
 import {
 	Dialog,
 	DialogClose,
@@ -14,43 +13,40 @@ import {
 } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-import { useActionState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { nicknameRegex } from "@/app/consts";
 import { useState } from "react";
-import { editNickname } from "@/app/actions";
-import { toast } from "sonner";
+import { useBar } from "./bar/provider";
+import type { EditNicknameMessage } from "@/game/messages";
 import type { Player } from "@/app/types";
 
 export default function NicknameButton({
-	playerNickname,
-	playerId,
-}: { playerNickname: string; playerId: string }) {
-	const [formState, formAction, isPending] = useActionState(editNickname, null);
+	children,
+	player,
+}: { children: React.ReactNode; player: Player }) {
+	const { socket } = useBar();
+	const [nickname, setNickname] = useState(player.nickname);
 
-	const [nickname, setNickname] = useState(playerNickname);
 	const isValidNickname = useMemo(() => {
 		return nicknameRegex.test(nickname);
 	}, [nickname]);
 
-	const [open, setOpen] = useState(false);
+	function handleEditNickname(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault();
+		const message: EditNicknameMessage = {
+			type: "editNickname",
+			data: {
+				playerId: player.id,
+				nickname,
+			},
+		};
 
-	useEffect(() => {
-		if (formState?.success) {
-			toast(`We'll remember your name! 😉`);
-			setOpen(false);
-		} else if (formState?.error) {
-			toast.error(formState.error);
-		}
-	}, [formState]);
+		socket.send(JSON.stringify(message));
+	}
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger asChild>
-				<Button variant="outline" size="sm">
-					<CircleUserRound className="h-6 w-6" />
-					<h2>{playerNickname}</h2>
-				</Button>
-			</DialogTrigger>
+		<Dialog>
+			<DialogTrigger asChild>{children}</DialogTrigger>
 			<DialogContent className="max-w-xs">
 				<DialogHeader>
 					<DialogTitle>Edit nickname</DialogTitle>
@@ -58,7 +54,7 @@ export default function NicknameButton({
 						Change your nickname to something more fun and unique.
 					</DialogDescription>
 				</DialogHeader>
-				<form action={formAction}>
+				<form onSubmit={handleEditNickname}>
 					<div className="flex items-center space-x-2">
 						<div className="grid flex-1 gap-2">
 							<Label htmlFor="nickname">Nickname</Label>
@@ -77,20 +73,19 @@ export default function NicknameButton({
 								</p>
 							)}
 						</div>
-						<input hidden type="hidden" name="playerId" value={playerId} />
 					</div>
 					<DialogFooter className="sm:justify-end mt-4">
-						<Button
-							type="submit"
-							disabled={
-								!isValidNickname ||
-								!nickname ||
-								isPending ||
-								nickname === playerNickname
-							}
-						>
-							Edit
-						</Button>
+						<DialogClose asChild>
+							<Button
+								type="submit"
+								className="w-full"
+								disabled={
+									!isValidNickname || !nickname || nickname === player.nickname
+								}
+							>
+								Edit
+							</Button>
+						</DialogClose>
 					</DialogFooter>
 				</form>
 			</DialogContent>
