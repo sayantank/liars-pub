@@ -63,3 +63,9 @@ export function chunk<T>(arr: T[], size: number): T[][] {
 		return acc;
 	}, [] as T[][]);
 }
+
+export function getDeploymentUrl() {
+	const host = process.env.VERCEL_URL ?? "127.0.0.1:3000";
+	const protocol = host.startsWith("127.0.0.1") ? "http" : "https";
+	return `${protocol}://${host}`;
+}

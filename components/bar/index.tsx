@@ -6,9 +6,9 @@ import BarChat from "./chat";
 import { MAX_PLAYERS, MIN_PLAYERS } from "@/app/consts";
 import CardHand from "./hand";
 import BarBanner from "./banner";
-import BarHeader from "./header";
 import BarPlayers from "./players";
 import { cn } from "@/lib/utils";
+import BarInvite from "./invite";
 
 export default function BarUI() {
 	const { bar, player, socket, socketState, startGame } = useBar();
@@ -19,7 +19,6 @@ export default function BarUI() {
 
 	return (
 		<>
-			<BarHeader />
 			<BarBanner className="mb-12 sm:mb-16" />
 
 			<div
@@ -28,25 +27,37 @@ export default function BarUI() {
 					bar.isStarted ? "justify-between" : "justify-end",
 				)}
 			>
-				{bar.isStarted && (
+				{bar.isStarted ? (
 					<div className="">
 						<CardHand />
 					</div>
-				)}
-				{!bar.isStarted &&
-					bar.players.length >= MIN_PLAYERS &&
-					bar.players.length <= MAX_PLAYERS && (
-						<div className="w-full flex justify-center mt-12">
+				) : (
+					<div className="flex flex-col w-2/3 mx-auto items-stretch justify-center gap-4">
+						{bar.players.length >= MIN_PLAYERS &&
+							bar.players.length <= MAX_PLAYERS && (
+								<Button
+									type="button"
+									className="flex-1"
+									size="sm"
+									onClick={startGame}
+								>
+									Start Game
+								</Button>
+							)}
+						<BarInvite barId={bar.id} />
+						{bar.players.length > 1 && (
 							<Button
 								type="button"
-								className="w-1/3"
+								variant="ghost"
+								className=" flex-1"
 								size="sm"
-								onClick={startGame}
 							>
-								Start Game
+								Leave Pub
 							</Button>
-						</div>
-					)}
+						)}
+					</div>
+				)}
+
 				<BarPlayers className="mb-6 min-h-36" />
 			</div>
 
