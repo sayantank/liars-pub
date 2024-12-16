@@ -3,11 +3,6 @@
 import { PARTYKIT_URL } from "@/app/env";
 import type { Bar } from "@/app/types";
 import { redirect } from "next/navigation";
-import { z } from "zod";
-import { nicknameRegex } from "./consts";
-import { getRedisKey } from "@/redis";
-import { revalidateTag } from "next/cache";
-import { getRandomAvatar } from "@/lib/utils";
 
 const randomId = () => Math.random().toString(36).substring(2, 10);
 
@@ -58,55 +53,4 @@ export async function joinBar(formData: FormData) {
 	}
 
 	redirect(`/${barId}`);
-}
-
-const editNicknameFormSchema = z.object({
-	playerId: z.string(),
-	nickname: z.string().regex(nicknameRegex),
-});
-export async function editNickname(
-	_: FormActionState,
-	formData: FormData,
-): Promise<FormActionState> {
-	const playerId = formData.get("playerId")?.toString();
-	const nickname = formData.get("nickname")?.toString();
-
-	const editNicknameForm = editNicknameFormSchema.safeParse({
-		playerId,
-		nickname,
-	});
-
-	if (!editNicknameForm.success) {
-		console.error("Failed to validate form", editNicknameForm.error);
-		return {
-			success: false,
-			error: "Failed to validate form",
-		};
-	}
-
-	const response = await fetch(
-		`${process.env.UPSTASH_REDIS_URL}/set/${getRedisKey(`nickname:${playerId}`)}/${editNicknameForm.data.nickname}`,
-		{
-			headers: {
-				Authorization: `Bearer ${process.env.UPSTASH_REDIS_TOKEN}`,
-			},
-		},
-	);
-
-	if (!response.ok) {
-		console.error({
-			status: response.status,
-			body: await response.text(),
-		});
-		return {
-			success: false,
-			error: "Failed to edit nickname",
-		};
-	}
-
-	revalidateTag(editNicknameForm.data.playerId);
-
-	return {
-		success: true,
-	};
 }

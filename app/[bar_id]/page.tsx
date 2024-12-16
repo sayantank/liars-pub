@@ -1,7 +1,6 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { PARTYKIT_URL } from "../env";
 import type { Bar } from "../types";
-import { auth } from "@/auth";
 import { MAX_PLAYERS } from "../consts";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

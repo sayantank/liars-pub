@@ -1,6 +1,5 @@
 import { createBar, joinBar } from "@/app/actions";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/auth";
 
 import PixelCard from "@/components/card";
 import { CardType } from "../types";
@@ -8,9 +7,6 @@ import { Input } from "@/components/ui/input";
 import { DoorOpenIcon, DoorClosedIcon } from "lucide-react";
 
 export default async function Home() {
-	const session = await auth();
-	const user = session?.user;
-
 	return (
 		<>
 			<div className="relative h-[150px] w-[140px] mb-4">
