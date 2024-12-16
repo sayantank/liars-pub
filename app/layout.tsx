@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "./globals.css";
 
@@ -46,6 +47,7 @@ export default async function RootLayout({
 				<main className="relative h-screen w-full max-w-xl sm:border-x-2 shadow-lg border-x-primary mx-auto p-4 flex flex-col">
 					{children}
 				</main>
+				<SpeedInsights />
 				<Toaster position="top-center" />
 			</body>
 		</html>
