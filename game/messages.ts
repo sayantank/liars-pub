@@ -1,5 +1,5 @@
 import { nicknameRegex } from "@/app/consts";
-import { playerSchema } from "@/lib/zod";
+import { avatarSchema, playerSchema } from "@/lib/zod";
 import { z } from "zod";
 
 const startGameMessageSchema = z.object({
@@ -44,8 +44,8 @@ export const newRoundMessageSchema = z.object({
 export const changeAvatarMessageSchema = z.object({
 	type: z.literal("changeAvatar"),
 	data: z.object({
-		player: playerSchema,
-		action: z.enum(["next", "prev"]),
+		playerId: z.string(),
+		avatar: avatarSchema,
 	}),
 });
 

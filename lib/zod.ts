@@ -1,11 +1,13 @@
-import { nicknameRegex } from "@/app/consts";
+import { AVATARS, nicknameRegex } from "@/app/consts";
 import { CardType, RouletteStatus } from "@/app/types";
 import { z } from "zod";
+
+export const avatarSchema = z.enum(AVATARS);
 
 export const playerSchema = z.object({
 	id: z.string(),
 	nickname: z.string().regex(nicknameRegex),
-	avatarIndex: z.number(),
+	avatar: avatarSchema,
 });
 
 export const cardSchema = z.object({

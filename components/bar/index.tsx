@@ -9,9 +9,11 @@ import BarBanner from "./banner";
 import BarPlayers from "./players";
 import { cn } from "@/lib/utils";
 import BarInvite from "./invite";
+import { useRouter } from "next/navigation";
 
 export default function BarUI() {
 	const { bar, player, socket, socketState, startGame } = useBar();
+	const router = useRouter();
 
 	if (socketState === socket.CONNECTING) {
 		return <p>Connecting...</p>;
@@ -45,16 +47,15 @@ export default function BarUI() {
 								</Button>
 							)}
 						<BarInvite barId={bar.id} />
-						{bar.players.length > 1 && (
-							<Button
-								type="button"
-								variant="ghost"
-								className=" flex-1"
-								size="sm"
-							>
-								Leave Pub
-							</Button>
-						)}
+						<Button
+							type="button"
+							variant="ghost"
+							className=" flex-1"
+							size="sm"
+							onClick={() => router.replace("/")}
+						>
+							Leave Pub
+						</Button>
 					</div>
 				)}
 

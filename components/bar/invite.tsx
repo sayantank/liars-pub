@@ -1,4 +1,3 @@
-import { getDeploymentUrl } from "@/lib/utils";
 import { useState } from "react";
 import { Button } from "../ui/button";
 
@@ -6,8 +5,12 @@ export default function BarInvite({ barId }: { barId: string }) {
 	const [isCopied, setIsCopied] = useState(false);
 
 	const copyToClipboard = async () => {
+		if (typeof window === "undefined") {
+			return;
+		}
+
 		try {
-			await navigator.clipboard.writeText(`${getDeploymentUrl()}/${barId}`);
+			await navigator.clipboard.writeText(`${window.location.origin}/${barId}`);
 			setIsCopied(true);
 			setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
 		} catch (err) {

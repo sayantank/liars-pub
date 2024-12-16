@@ -95,13 +95,26 @@ function PlayerDisplay({ player }: { player: Player }) {
 			return;
 		}
 
+		const avatarIndex = AVATARS.findIndex(
+			(avatar) => avatar === currentPlayer.avatar,
+		);
+
+		const newAvatarIndex =
+			action === "next"
+				? (avatarIndex + 1) % AVATARS.length
+				: (avatarIndex - 1 + AVATARS.length) % AVATARS.length;
+
+		const newAvatar = AVATARS[newAvatarIndex];
+
 		const message: ChangeAvatarMessage = {
 			type: "changeAvatar",
 			data: {
-				player: currentPlayer,
-				action,
+				playerId: currentPlayer.id,
+				avatar: newAvatar,
 			},
 		};
+
+		localStorage.setItem("liars_pub:avatar", newAvatar);
 
 		socket.send(JSON.stringify(message));
 	}
@@ -170,7 +183,7 @@ function PlayerDisplay({ player }: { player: Player }) {
 							? "😰"
 							: bar.isStarted && playerLives === 0
 								? "💀"
-								: AVATARS[player.avatarIndex]}
+								: player.avatar}
 					</p>
 					{isMyself && !bar.isStarted && (
 						<button type="button" onClick={() => handleChangeAvatar("next")}>

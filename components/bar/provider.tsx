@@ -29,9 +29,19 @@ export default function BarProvider({
 		null,
 	);
 
+	const isServer = typeof window === "undefined";
+
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
 		room: barId,
+		query: {
+			nickname: !isServer
+				? (localStorage.getItem("liars_pub:nickname") ?? undefined)
+				: undefined,
+			avatar: !isServer
+				? (localStorage.getItem("liars_pub:avatar") ?? undefined)
+				: undefined,
+		},
 		onMessage(event) {
 			try {
 				const eventData = JSON.parse(event.data);
@@ -89,7 +99,6 @@ export default function BarProvider({
 	}
 
 	if (playerWithLives == null || bar == null) {
-		console.warn("Missing player or bar");
 		return null;
 	}
 

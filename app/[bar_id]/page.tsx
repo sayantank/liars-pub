@@ -31,7 +31,6 @@ export default async function BarPage({
 	}
 
 	const bar = (await req.json()) as Bar;
-	console.log(bar);
 
 	const isBarFull = bar.players.length >= MAX_PLAYERS;
 

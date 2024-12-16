@@ -28,7 +28,7 @@ import {
 	getRandomAvatar,
 	getRandomNumber,
 } from "@/lib/utils";
-import { barSchema } from "@/lib/zod";
+import { avatarSchema, barSchema } from "@/lib/zod";
 import type * as Party from "partykit/server";
 import { animals, uniqueNamesGenerator } from "unique-names-generator";
 
@@ -65,6 +65,10 @@ export default class Server implements Party.Server {
 	async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
 		const connectionId = conn.id;
 
+		const url = new URL(ctx.request.url);
+		const nickname = url.searchParams.get("nickname");
+		const avatarParse = avatarSchema.safeParse(url.searchParams.get("avatar"));
+
 		// If the player is not already in the bar, add them
 		if (
 			this.bar != null &&
@@ -73,10 +77,14 @@ export default class Server implements Party.Server {
 		) {
 			const player = {
 				id: connectionId,
-				nickname: uniqueNamesGenerator({
-					dictionaries: [animals],
-				}),
-				avatarIndex: getRandomAvatar().index,
+				nickname:
+					nickname ??
+					uniqueNamesGenerator({
+						dictionaries: [animals],
+					}),
+				avatar: avatarParse.success
+					? avatarParse.data
+					: getRandomAvatar().avatar,
 			};
 
 			this.bar.players.push(player);
@@ -396,32 +404,23 @@ export default class Server implements Party.Server {
 			return;
 		}
 
-		const action = message.data.action;
+		const playerId = message.data.playerId;
+		const playerIndex = this.bar.players.findIndex((p) => p.id === playerId);
+		const activePlayerIndex = this.bar.activePlayers.findIndex(
+			(p) => p.id === playerId,
+		);
 
-		// loop through every player looking for the one to update
-		for (const player of this.bar.players) {
-			// find the index for the active player
-			const activePlayerIndex = this.bar.activePlayers.findIndex(
-				(p) => p.id === player.id,
-			);
+		if (playerIndex === -1) {
+			console.error("Player not found for changeAvatar", {
+				playerId,
+				room: this.room.id,
+			});
+			return;
+		}
 
-			if (player.id === message.data.player.id) {
-				if (action === "next") {
-					player.avatarIndex = (player.avatarIndex + 1) % AVATARS.length;
-					// if the player is the active player, update the active player's avatar
-					if (activePlayerIndex !== -1) {
-						this.bar.activePlayers[activePlayerIndex].avatarIndex =
-							player.avatarIndex;
-					}
-				} else if (action === "prev") {
-					player.avatarIndex =
-						(player.avatarIndex - 1 + AVATARS.length) % AVATARS.length;
-					if (activePlayerIndex !== -1) {
-						this.bar.activePlayers[activePlayerIndex].avatarIndex =
-							player.avatarIndex;
-					}
-				}
-			}
+		this.bar.players[playerIndex].avatar = message.data.avatar;
+		if (activePlayerIndex !== -1) {
+			this.bar.activePlayers[activePlayerIndex].avatar = message.data.avatar;
 		}
 	}
 

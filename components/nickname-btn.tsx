@@ -41,6 +41,8 @@ export default function NicknameButton({
 			},
 		};
 
+		localStorage.setItem("liars_pub:nickname", nickname);
+
 		socket.send(JSON.stringify(message));
 	}
 

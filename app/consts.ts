@@ -10,4 +10,13 @@ export const CHAT_BUBBLE_DURATION = 5 * 1000; // 5 seconds
 
 export const nicknameRegex = /^[a-zA-Z0-9_-]+$/;
 
-export const AVATARS = ["🤠", "🤡", "💀", "😈", "🤖", "🎃", "👽", "🥸", "🤥"];
+export const AVATARS = [
+	"🤠",
+	"🤡",
+	"😈",
+	"🤖",
+	"🎃",
+	"👽",
+	"🥸",
+	"🤥",
+] as const;
