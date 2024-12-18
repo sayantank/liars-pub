@@ -10,7 +10,7 @@ export default function RulesPage() {
 	const isMobile = useIsMobile();
 	const router = useRouter();
 	return (
-		<div className="h-full flex flex-col space-y-6 px-4 sm:px-6 py-10 sm:py-8 overflow-y-auto no-scrollbar">
+		<div className="h-full flex flex-col space-y-8 px-4 sm:px-6 py-10 sm:py-8 overflow-y-auto no-scrollbar">
 			<div className="flex w-full items-center justify-between">
 				<h1 className="text-xl font-bold">How to play?</h1>
 				<button
@@ -28,7 +28,7 @@ export default function RulesPage() {
 				the psychological warfare between players and judging whether opponents
 				are lying.
 			</p>
-			<div className="space-y-4">
+			<div className="space-y-6">
 				<h2 className="text-lg font-medium underline">Game Setting</h2>
 				<div>
 					<p>
@@ -63,7 +63,7 @@ export default function RulesPage() {
 					any other type of card.
 				</p>
 			</div>
-			<div className="space-y-4">
+			<div className="space-y-6">
 				<h2 className="text-lg font-medium underline">Gameplay</h2>
 
 				<div className="space-y-2">
