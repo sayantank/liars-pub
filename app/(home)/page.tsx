@@ -11,10 +11,10 @@ export default async function Home() {
 		<>
 			<div className="relative h-[150px] w-[140px] mb-4">
 				<div className="absolute left-0 transform -rotate-12">
-					<PixelCard type={CardType.Ace} />
+					<PixelCard type={"back"} />
 				</div>
 				<div className="absolute left-[20px] top-0">
-					<PixelCard type={CardType.Queen} />
+					<PixelCard type={"back"} />
 				</div>
 				<div className="absolute left-[40px] transform rotate-12">
 					<PixelCard type={CardType.King} />

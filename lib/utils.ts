@@ -22,12 +22,12 @@ export function getCardTypeLabel(type: CardType) {
 	}
 }
 
-export function getPlayerForTurn(bar: Bar, turn: number) {
-	if (bar.activePlayers.length === 0) {
+export function getPlayerNicknameForTurn(bar: Bar, turn: number) {
+	if (bar.turnSequence == null) {
 		return null;
 	}
-
-	return bar.activePlayers[turn % bar.activePlayers.length];
+	const index = turn % bar.turnSequence.length;
+	return bar.turnSequence[index];
 }
 
 export function getRandomNumber(min: number, max: number) {

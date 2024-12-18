@@ -6,7 +6,7 @@ interface PixelCardProps {
 	height?: number;
 	backgroundColor?: string;
 	foregroundColor?: string;
-	type: CardType;
+	type: CardType | "back";
 }
 
 const foregrounColorMap = {
@@ -14,6 +14,7 @@ const foregrounColorMap = {
 	[CardType.King]: "#ff0000",
 	[CardType.Queen]: "#ff0000",
 	[CardType.Joker]: "black",
+	back: "black",
 };
 
 const PixelCard: React.FC<PixelCardProps> = ({
@@ -173,6 +174,36 @@ const PixelCard: React.FC<PixelCardProps> = ({
 		return borderPixels;
 	};
 
+	const renderBackPattern = () => {
+		const pattern = [];
+		const padding = 3; // Number of pixels padding from border
+		const checkerSize = pixelSize * 1; // Increased from pixelSize to pixelSize * 1.5
+		const horizontalPixels = Math.floor(
+			(width - padding * 2 * pixelSize) / checkerSize,
+		);
+		const verticalPixels = Math.floor(
+			(height - padding * 2 * pixelSize) / checkerSize,
+		);
+
+		for (let i = 0; i < verticalPixels; i++) {
+			for (let j = 0; j < horizontalPixels; j++) {
+				if ((i + j) % 2 === 0) {
+					pattern.push(
+						<rect
+							key={`checker-${i}-${j}`}
+							x={padding * pixelSize + j * checkerSize}
+							y={padding * pixelSize + i * checkerSize}
+							width={checkerSize}
+							height={checkerSize}
+							fill={foregroundColor}
+						/>,
+					);
+				}
+			}
+		}
+		return pattern;
+	};
+
 	return (
 		<svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
 			<title>Card</title>
@@ -187,23 +218,35 @@ const PixelCard: React.FC<PixelCardProps> = ({
 			{/* Add border */}
 			{renderBorder()}
 
-			{/* Top left letter */}
-			{renderPixels(smallLetter[type], pixelSize * 2, pixelSize * 2, pixelSize)}
+			{/* Render either the letters or the back pattern */}
+			{type === "back" ? (
+				renderBackPattern()
+			) : (
+				<>
+					{/* Top left letter */}
+					{renderPixels(
+						smallLetter[type],
+						pixelSize * 2,
+						pixelSize * 2,
+						pixelSize,
+					)}
 
-			{/* Bottom right letter */}
-			{renderPixels(
-				smallLetter[type],
-				width - pixelSize * 7,
-				height - pixelSize * 7,
-				pixelSize,
-			)}
+					{/* Bottom right letter */}
+					{renderPixels(
+						smallLetter[type],
+						width - pixelSize * 7,
+						height - pixelSize * 7,
+						pixelSize,
+					)}
 
-			{/* Center big letter */}
-			{renderPixels(
-				bigLetter[type],
-				(width - bigLetter[type][0].length * pixelSize * 2) / 2,
-				(height - bigLetter[type].length * pixelSize * 2) / 2,
-				pixelSize * 2,
+					{/* Center big letter */}
+					{renderPixels(
+						bigLetter[type],
+						(width - bigLetter[type][0].length * pixelSize * 2) / 2,
+						(height - bigLetter[type].length * pixelSize * 2) / 2,
+						pixelSize * 2,
+					)}
+				</>
 			)}
 		</svg>
 	);

@@ -1,5 +1,5 @@
 import { nicknameRegex } from "@/app/consts";
-import { avatarSchema, playerSchema } from "@/lib/zod";
+import { avatarSchema, barSchema, cardSchema, playerSchema } from "@/lib/zod";
 import { z } from "zod";
 
 const startGameMessageSchema = z.object({
@@ -9,7 +9,7 @@ const startGameMessageSchema = z.object({
 export const sendChatMessageSchema = z.object({
 	type: z.literal("chat"),
 	data: z.object({
-		player: playerSchema,
+		playerNickname: playerSchema.shape.nickname,
 		message: z.string().min(1),
 	}),
 });
@@ -17,8 +17,8 @@ export const sendChatMessageSchema = z.object({
 export const claimCardsMessageSchema = z.object({
 	type: z.literal("claimCards"),
 	data: z.object({
-		playerId: z.string(),
-		cards: z.array(z.number()),
+		playerNickname: z.string(),
+		cardIndices: z.array(z.number()),
 	}),
 });
 
@@ -32,7 +32,7 @@ export const callOutMessageSchema = z.object({
 export const guessRouletteMessageSchema = z.object({
 	type: z.literal("guessRoulette"),
 	data: z.object({
-		player: playerSchema,
+		playerNickname: playerSchema.shape.nickname,
 		guess: z.number(),
 	}),
 });
@@ -78,3 +78,74 @@ export type ChangeAvatarMessage = z.infer<typeof changeAvatarMessageSchema>;
 export type EditNicknameMessage = z.infer<typeof editNicknameMessageSchema>;
 
 export type ClientMessage = z.infer<typeof clientMessageSchema>;
+
+// --------------------------------
+
+export const barStateMessageSchema = z.object({
+	type: z.literal("bar"),
+	data: barSchema,
+});
+
+export const playerStateMessageSchema = z.object({
+	type: z.literal("players"),
+	data: z.record(
+		playerSchema.shape.nickname,
+		z.object({
+			handCount: z.number(),
+			lives: z.number(),
+		}),
+	),
+});
+
+export const handMessageSchema = z.object({
+	type: z.literal("hand"),
+	data: z.array(cardSchema),
+});
+
+const playerActionBaseSchema = z.object({
+	type: z.literal("playerAction"),
+	playerNickname: playerSchema.shape.nickname,
+});
+
+export const chatMessageActionSchema = playerActionBaseSchema.extend({
+	actionType: z.literal("chat"),
+	data: z.object({
+		message: z.string().min(1),
+	}),
+});
+
+export const claimCardsActionSchema = playerActionBaseSchema.extend({
+	actionType: z.literal("claimCards"),
+	data: z.object({
+		count: z.number(),
+	}),
+});
+
+export const callOutActionSchema = playerActionBaseSchema.extend({
+	actionType: z.literal("callOut"),
+});
+
+export const showClaimActionSchema = playerActionBaseSchema.extend({
+	actionType: z.literal("showClaim"),
+	data: z.array(cardSchema),
+});
+
+export const playerActionMessageSchema = z.discriminatedUnion("actionType", [
+	chatMessageActionSchema,
+	claimCardsActionSchema,
+	callOutActionSchema,
+	showClaimActionSchema,
+]);
+
+export const serverMessageSchema = z.discriminatedUnion("type", [
+	barStateMessageSchema,
+	playerStateMessageSchema,
+	handMessageSchema,
+]);
+
+export type BarStateMessage = z.infer<typeof barStateMessageSchema>;
+export type PlayerStateMessage = z.infer<typeof playerStateMessageSchema>;
+export type HandMessage = z.infer<typeof handMessageSchema>;
+
+export type ServerMessage = z.infer<typeof serverMessageSchema>;
+export type PlayerActionMessage = z.infer<typeof playerActionMessageSchema>;

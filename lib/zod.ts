@@ -36,26 +36,50 @@ export const chatMessageSchema = z.discriminatedUnion("type", [
 export const barSchema = z.object({
 	id: z.string(),
 	isStarted: z.boolean(),
-	forceCallOut: z.boolean(),
+
+	// // We map by nickname because the id may change as connections are replaced on refresh
+	// // But we don't allow the same nickname in a game, and is not allowed to edit in between a game
+	// // So we can just use the nickname as the key, as long as we make sure to reset the map on start.
+	// playerLives: z.record(playerSchema.shape.nickname, z.object()),
+	// handCounts: z.record(playerSchema.shape.nickname, z.number()),
 
 	roulette: z
 		.object({
-			player: playerSchema,
+			playerNickname: playerSchema.shape.nickname,
 			status: z.nativeEnum(RouletteStatus),
 		})
 		.nullable(),
 
-	turn: z.number(),
 	tableType: z.nativeEnum(CardType).nullable(),
-	lastClaimCount: z.number().nullable(),
+	lastClaim: z
+		.object({
+			count: z.number(),
+			playerNickname: z.string(),
+		})
+		.nullable(),
 
 	players: z.array(playerSchema),
-	activePlayers: z.array(
-		playerSchema.extend({
+
+	turn: z
+		.object({
+			number: z.number(),
+			playerNickname: z.string(),
+		})
+		.nullable(),
+
+	turnSequence: z.array(playerSchema.shape.nickname).nullable(),
+
+	winner: playerSchema.shape.nickname.nullable(),
+});
+
+export const roundStateSchema = z.object({
+	stack: z.array(cardSchema),
+	rouletteGuess: z.number().nullable(),
+	players: z.record(
+		playerSchema.shape.nickname,
+		z.object({
+			hand: z.array(cardSchema),
 			lives: z.number(),
 		}),
 	),
-	winner: playerSchema.nullable(),
-
-	messages: z.record(chatMessageSchema),
 });
