@@ -10,6 +10,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { Button } from "../ui/button";
 import type { StartGameMessage } from "@/game/messages";
 import PlayerCell from "./player";
+import { MIN_PLAYERS } from "@/app/consts";
 
 export default function BarUIV2() {
 	const { bar, socket, isGuessing } = useBarV2();
@@ -36,6 +37,7 @@ export default function BarUIV2() {
 						size={isMobile ? "sm" : "default"}
 						type="button"
 						className="min-w-48"
+						disabled={bar.players.length < MIN_PLAYERS}
 						onClick={startGame}
 					>
 						START

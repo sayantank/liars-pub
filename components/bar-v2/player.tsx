@@ -65,9 +65,15 @@ export default function PlayerCell({ player }: { player: Player }) {
 	return (
 		<div className="p-2 sm:p-4 flex flex-col-reverse items-center">
 			{playerMap != null && (
-				<div className="flex items-center space-x-2">
-					<PixelHeart size={isMobile ? 15 : 20} />
-					<p>{playerMap[player.nickname].lives}</p>
+				<div className=" flex items-center space-x-4">
+					<div className="flex items-center space-x-2">
+						<PixelHeart size={isMobile ? 15 : 20} />
+						<p>{playerMap[player.nickname].lives}</p>
+					</div>
+					<div className="flex items-center space-x-2">
+						<PixelCard width={20} height={28} type="back" />
+						<p>{playerMap[player.nickname].handCount}</p>
+					</div>
 				</div>
 			)}
 			<PlayerNickname player={player} />
