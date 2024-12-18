@@ -21,20 +21,27 @@ export default function Roulette() {
 		socket.send(JSON.stringify(message));
 	}
 
+	if (playerMap == null) {
+		console.error("playerMap is null");
+		return null;
+	}
+
 	return (
 		<div className={cn("flex items-center justify-center flex-wrap gap-4")}>
-			{Array.from({ length: 6 }).map((_, index) => (
-				<Button
-					key={`guess-${index}`}
-					type="button"
-					size={isMobile ? "sm" : "default"}
-					variant="outline"
-					className=""
-					onClick={() => handleGuessRoulette(index + 1)}
-				>
-					{index + 1}
-				</Button>
-			))}
+			{Array.from({ length: playerMap[player.nickname].lives }).map(
+				(_, index) => (
+					<Button
+						key={`guess-${index}`}
+						type="button"
+						size={isMobile ? "sm" : "default"}
+						variant="outline"
+						className=""
+						onClick={() => handleGuessRoulette(index + 1)}
+					>
+						{index + 1}
+					</Button>
+				),
+			)}
 		</div>
 	);
 }

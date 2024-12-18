@@ -108,6 +108,7 @@ function PlayerNickname({ player }: { player: Player }) {
 	return (
 		<Dialog>
 			<div className="flex items-center space-x-2 pt-4 sm:pt-4 py-2">
+				{bar.winner != null && bar.winner === player.nickname && <p>👑</p>}
 				<p>{player.nickname}</p>
 				{canEdit && (
 					<>

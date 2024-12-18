@@ -5,6 +5,7 @@ import PixelCard from "@/components/card";
 import { CardType } from "../types";
 import { Input } from "@/components/ui/input";
 import { DoorOpenIcon, DoorClosedIcon } from "lucide-react";
+import Link from "next/link";
 
 export default async function Home() {
 	return (
@@ -39,6 +40,13 @@ export default async function Home() {
 						</button>
 					</div>
 				</form>
+			</div>
+			<div className="mt-8">
+				<Link href="/rules">
+					<p className="underline text-gray-400 hover:font-semibold">
+						How to play?
+					</p>
+				</Link>
 			</div>
 		</>
 	);

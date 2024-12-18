@@ -1,10 +1,28 @@
 import { RouletteStatus } from "@/app/types";
 import { useBarV2 } from "./provider";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { NewRoundMessage } from "@/game/messages";
+import { CopyIcon } from "lucide-react";
+import Link from "next/link";
 
 export default function Header() {
 	const { bar, player, socket } = useBarV2();
+
+	const [isCopied, setIsCopied] = useState(false);
+
+	async function copyToClipboard() {
+		if (typeof window === "undefined") {
+			return;
+		}
+
+		try {
+			await navigator.clipboard.writeText(bar.id);
+			setIsCopied(true);
+			setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
+		} catch (err) {
+			console.error("Failed to copy text: ", err);
+		}
+	}
 
 	useEffect(() => {
 		let timeout: NodeJS.Timeout;
@@ -33,26 +51,42 @@ export default function Header() {
 						<span className="capitalize">{bar.tableType}'s Table</span>
 					</>
 				) : (
-					"Welcome to Liar's Pub!"
+					<>
+						Bar ID: <span className="font-semibold">{bar.id}</span>
+						<button
+							type="button"
+							className="ml-2 inline"
+							onClick={copyToClipboard}
+						>
+							{!isCopied ? <CopyIcon className="inline size-4" /> : "✅"}
+						</button>
+					</>
 				)}
 			</h1>
-			{bar.roulette != null ? (
-				bar.roulette.status === RouletteStatus.Guessing ? (
-					<p className="text-xs sm:text-sm">
-						{bar.roulette.playerNickname} is guessing...
-					</p>
+			{bar.isStarted ? (
+				bar.roulette != null ? (
+					bar.roulette.status === RouletteStatus.Guessing ? (
+						<p className="text-xs sm:text-sm">
+							{bar.roulette.playerNickname} is guessing...
+						</p>
+					) : (
+						<p className="text-xs sm:text-sm">
+							{bar.roulette.playerNickname} is{" "}
+							<span className="font-bold uppercase">{bar.roulette.status}</span>
+							!
+						</p>
+					)
 				) : (
-					<p className="text-xs sm:text-sm">
-						{bar.roulette.playerNickname} is{" "}
-						<span className="font-bold uppercase">{bar.roulette.status}</span>!
-					</p>
+					bar.lastClaim != null && (
+						<p className="text-xs sm:text-sm">
+							{bar.lastClaim.playerNickname} played {bar.lastClaim.count} cards
+						</p>
+					)
 				)
 			) : (
-				bar.lastClaim != null && (
-					<p className="text-xs sm:text-sm">
-						{bar.lastClaim.playerNickname} played {bar.lastClaim.count} cards
-					</p>
-				)
+				<Link href="/rules">
+					<h1 className="text-xs sm:text-sm hover:underline">How to play?</h1>
+				</Link>
 			)}
 		</div>
 	);
