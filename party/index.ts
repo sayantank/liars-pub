@@ -36,8 +36,6 @@ import { animals, uniqueNamesGenerator } from "unique-names-generator";
 export default class Server implements Party.Server {
 	constructor(readonly room: Party.Room) {}
 
-	rouletteGuess: number | undefined;
-
 	bar: Bar | undefined;
 	roundState: RoundState | undefined;
 
@@ -200,7 +198,6 @@ export default class Server implements Party.Server {
 			return;
 		}
 
-		console.log("broadcasting");
 		this._broadcast({
 			type: "playerAction",
 			actionType: "claimCards",
@@ -308,7 +305,7 @@ export default class Server implements Party.Server {
 
 		const roulettePlayer = wasLying ? playerBeingCalledOut : playerCallingOut;
 
-		this.rouletteGuess = getRandomNumber(
+		this.roundState.rouletteGuess = getRandomNumber(
 			1,
 			this.roundState.players[roulettePlayer].lives,
 		);
@@ -322,7 +319,6 @@ export default class Server implements Party.Server {
 	guessRoulette(message: GuessRouletteMessage) {
 		if (
 			this.bar == null ||
-			this.rouletteGuess == null ||
 			this.bar.roulette == null ||
 			this.roundState == null ||
 			this.bar.turnSequence == null
@@ -341,7 +337,7 @@ export default class Server implements Party.Server {
 		}
 
 		// If the guess is not the same as the server number, the player is still alive
-		if (this.rouletteGuess !== message.data.guess) {
+		if (this.roundState.rouletteGuess !== message.data.guess) {
 			this.bar.roulette.status = RouletteStatus.Alive;
 
 			this.roundState.players[message.data.playerNickname].lives -= 1;
@@ -373,13 +369,11 @@ export default class Server implements Party.Server {
 		console.log("new round");
 		if (
 			this.bar == null ||
-			this.rouletteGuess == null ||
 			this.bar.turnSequence == null ||
 			this.roundState == null
 		) {
 			console.log({
 				bar: this.bar,
-				rouletteGuess: this.rouletteGuess,
 				turnSequence: this.bar?.turnSequence,
 				roundState: this.roundState,
 			});
@@ -388,7 +382,6 @@ export default class Server implements Party.Server {
 
 		// If only one player is remaining, he/she is the winner
 		if (this.bar.turnSequence.length === 1) {
-			this.rouletteGuess = undefined;
 			this.bar = {
 				id: this.bar.id,
 				isStarted: false,
@@ -407,7 +400,7 @@ export default class Server implements Party.Server {
 		}
 
 		// Reset the roulette
-		this.rouletteGuess = undefined;
+		this.roundState.rouletteGuess = null;
 		this.bar.roulette = null;
 
 		// Reset the table type

@@ -114,7 +114,9 @@ function PlayerNickname({ player }: { player: Player }) {
 	return (
 		<Dialog>
 			<div className="flex items-center space-x-2 pt-4 sm:pt-4 py-2">
-				{bar.winner != null && bar.winner === player.nickname && <p>👑</p>}
+				{bar.winner != null && bar.winner === player.nickname && (
+					<p className="text-lg sm:text-xl">👑</p>
+				)}
 				<p
 					className={cn(
 						bar.turn?.playerNickname === player.nickname ? "font-bold" : "",

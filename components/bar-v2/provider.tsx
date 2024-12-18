@@ -61,7 +61,6 @@ export default function BarProviderV2({
 				bar.roulette != null && bar.roulette.status !== RouletteStatus.Guessing,
 		};
 
-		console.log(status);
 		return status;
 	}, [bar, player]);
 
@@ -94,6 +93,9 @@ export default function BarProviderV2({
 				switch (eventData.type) {
 					case "bar": {
 						setBar(eventData.data);
+						if (!eventData.data.isStarted) {
+							setPlayerMap(null);
+						}
 						for (const player of eventData.data.players) {
 							if (player.id === socket.id) {
 								setPlayer(player);

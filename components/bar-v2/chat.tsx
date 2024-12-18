@@ -33,6 +33,7 @@ export default function ChatInput() {
 				<Input
 					className="h-12 sm:h-16 border-x-0"
 					value={chatText}
+					placeholder="Say something..."
 					onChange={(e) => setChatText(e.target.value)}
 				/>
 				<button
