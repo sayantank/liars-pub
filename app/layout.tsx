@@ -44,7 +44,7 @@ export default async function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased font-mono`}
 			>
-				<main className="relative h-screen w-full max-w-xl sm:border-x-2 border-x-primary mx-auto">
+				<main className="relative h-dvh w-full max-w-xl sm:border-x-2 border-x-primary mx-auto">
 					{children}
 				</main>
 				<SpeedInsights />

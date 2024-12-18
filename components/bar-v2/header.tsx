@@ -48,7 +48,8 @@ export default function Header() {
 			<h1 className="text-xs sm:text-sm">
 				{bar.isStarted ? (
 					<>
-						<span className="capitalize">{bar.tableType}'s Table</span>
+						<span className="capitalize font-bold">{bar.tableType}</span>'s
+						Table
 					</>
 				) : (
 					<>
