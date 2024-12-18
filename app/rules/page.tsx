@@ -10,7 +10,7 @@ export default function RulesPage() {
 	const isMobile = useIsMobile();
 	const router = useRouter();
 	return (
-		<div className="h-full flex flex-col space-y-6 p-2 sm:p-4 overflow-y-auto no-scrollbar">
+		<div className="h-full flex flex-col space-y-6 px-4 sm:px-6 py-10 sm:py-8 overflow-y-auto no-scrollbar">
 			<div className="flex w-full items-center justify-between">
 				<h1 className="text-xl font-bold">How to play?</h1>
 				<button
