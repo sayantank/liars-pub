@@ -45,10 +45,10 @@ export default function Header() {
 
 	return (
 		<div className="h-8 sm:h-10 border-b-2 border-primary flex items-center justify-between px-4">
-			<h1 className="text-xs sm:text-sm">
+			<h1 className="text-sm sm:text-lg">
 				{bar.isStarted ? (
 					<>
-						<span className="capitalize font-bold">{bar.tableType}</span>'s
+						<span className="capitalize font-bold">{bar.tableType}'s</span>{" "}
 						Table
 					</>
 				) : (
@@ -67,11 +67,11 @@ export default function Header() {
 			{bar.isStarted ? (
 				bar.roulette != null ? (
 					bar.roulette.status === RouletteStatus.Guessing ? (
-						<p className="text-xs sm:text-sm">
+						<p className="text-sm sm:text-lg">
 							{bar.roulette.playerNickname} is guessing...
 						</p>
 					) : (
-						<p className="text-xs sm:text-sm">
+						<p className="text-sm sm:text-lg">
 							{bar.roulette.playerNickname} is{" "}
 							<span className="font-bold uppercase">{bar.roulette.status}</span>
 							!
@@ -79,14 +79,14 @@ export default function Header() {
 					)
 				) : (
 					bar.lastClaim != null && (
-						<p className="text-xs sm:text-sm">
+						<p className="text-sm sm:text-baslge">
 							{bar.lastClaim.playerNickname} played {bar.lastClaim.count} cards
 						</p>
 					)
 				)
 			) : (
 				<Link href="/rules">
-					<h1 className="text-xs sm:text-sm hover:underline">How to play?</h1>
+					<h1 className="text-sm sm:text-lg hover:underline">How to play?</h1>
 				</Link>
 			)}
 		</div>

@@ -13,7 +13,7 @@ import PlayerCell from "./player";
 import { MIN_PLAYERS } from "@/app/consts";
 
 export default function BarUIV2() {
-	const { bar, socket, isGuessing } = useBarV2();
+	const { bar, socket, player, isGuessing } = useBarV2();
 	const isMobile = useIsMobile();
 
 	function startGame() {
@@ -31,6 +31,11 @@ export default function BarUIV2() {
 					<PlayerCell key={p.id} player={p} />
 				))}
 			</div>
+			{bar.turn?.playerNickname === player.nickname && (
+				<div className="h-8 sm:h-10 border-t-2 border-primary flex items-center justify-center">
+					<p>It's your turn</p>
+				</div>
+			)}
 			<div className="h-[120px] sm:h-[180px] w-full border-t-2 border-primary flex items-center justify-center">
 				{!bar.isStarted ? (
 					<Button

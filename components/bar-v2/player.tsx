@@ -115,7 +115,13 @@ function PlayerNickname({ player }: { player: Player }) {
 		<Dialog>
 			<div className="flex items-center space-x-2 pt-4 sm:pt-4 py-2">
 				{bar.winner != null && bar.winner === player.nickname && <p>👑</p>}
-				<p>{player.nickname}</p>
+				<p
+					className={cn(
+						bar.turn?.playerNickname === player.nickname ? "font-bold" : "",
+					)}
+				>
+					{player.nickname}
+				</p>
 				{canEdit && (
 					<>
 						<DialogTrigger asChild>
