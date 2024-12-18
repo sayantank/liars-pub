@@ -1,11 +1,11 @@
-import { notFound } from "next/navigation";
-import { PARTYKIT_URL } from "../env";
-import type { Bar } from "../types";
-import { MAX_PLAYERS } from "../consts";
+import BarUIV2 from "@/components/bar-v2";
+import { PARTYKIT_URL } from "@/app/env";
+import { notFound, redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import BarUI from "@/components/bar";
-import BarProvider from "@/components/bar/provider";
+import { Link } from "lucide-react";
+import { MAX_PLAYERS } from "@/app/consts";
+import BarProviderV2 from "@/components/bar-v2/provider";
+import { barSchema } from "@/lib/zod";
 
 export default async function BarPage({
 	params,
@@ -29,24 +29,31 @@ export default async function BarPage({
 		}
 	}
 
-	const bar = (await req.json()) as Bar;
+	try {
+		const json = await req.json();
+		const bar = barSchema.parse(json);
 
-	const isBarFull = bar.players.length >= MAX_PLAYERS;
+		const isBarFull = bar.players.length >= MAX_PLAYERS;
 
-	if (isBarFull) {
+		// TODO: make this ui better
+		if (isBarFull) {
+			return (
+				<div className="space-y-4 flex flex-col items-center">
+					<h1 className="text-lg">Bar is full!</h1>
+					<Link href="/" className="block">
+						<Button type="button">Go home</Button>
+					</Link>
+				</div>
+			);
+		}
+
 		return (
-			<div className="space-y-4 flex flex-col items-center">
-				<h1 className="text-lg">Bar is full!</h1>
-				<Link href="/" className="block">
-					<Button type="button">Go home</Button>
-				</Link>
-			</div>
+			<BarProviderV2 initialBar={bar}>
+				<BarUIV2 />
+			</BarProviderV2>
 		);
+	} catch (err) {
+		console.error(err);
+		redirect("/");
 	}
-
-	return (
-		<BarProvider barId={barId}>
-			<BarUI />
-		</BarProvider>
-	);
 }
