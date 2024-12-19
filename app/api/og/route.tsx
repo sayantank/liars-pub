@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 					</div>
 				</div>
 				<h2 tw="text-8xl mt-6 ">{liarsPub}</h2>
-				<p tw="text-2xl mt-2">{description1}</p>
+				<p tw="text-3xl mt-2">{description1}</p>
 			</div>,
 			{
 				width: 1200,

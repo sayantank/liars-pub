@@ -55,9 +55,9 @@ export async function GET(
 						<PixelCard type={"back"} height={175} width={125} />
 					</div>
 				</div>
-				<h1 tw="text-2xl mb-0 mt-6">{liarsPub}</h1>
-				<h2 tw="text-8xl m-0 ">{bar_id}</h2>
-				<p tw="text-2xl mt-6">{joinMessage}</p>
+				<h1 tw="text-3xl mb-0 mt-6">{liarsPub}</h1>
+				<h2 tw="text-9xl mt-4 ">{bar_id}</h2>
+				<p tw="text-3xl mt-4">{joinMessage}</p>
 			</div>,
 			{
 				width: 1200,
