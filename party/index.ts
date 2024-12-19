@@ -289,7 +289,6 @@ export default class Server implements Party.Server {
 
 		let wasLying = false;
 		for (const card of this.roundState.stack) {
-			console.log("checking", card, this.bar.tableType);
 			if (card.type !== this.bar.tableType && card.type !== CardType.Joker) {
 				wasLying = true;
 				break;
@@ -366,7 +365,6 @@ export default class Server implements Party.Server {
 	}
 
 	newRound() {
-		console.log("new round");
 		if (
 			this.bar == null ||
 			this.bar.turnSequence == null ||

@@ -206,7 +206,6 @@ const PixelCard: React.FC<PixelCardProps> = ({
 
 	return (
 		<svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-			<title>Card</title>
 			<rect
 				width={width}
 				height={height}

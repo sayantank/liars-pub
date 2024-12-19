@@ -6,6 +6,23 @@ import { Link } from "lucide-react";
 import { MAX_PLAYERS } from "@/app/consts";
 import BarProviderV2 from "@/components/bar-v2/provider";
 import { barSchema } from "@/lib/zod";
+import { constructMetadata } from "@/lib/utils";
+
+export async function generateMetadata({
+	params,
+	searchParams,
+}: {
+	params: Promise<{ bar_id: string }>;
+	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+	const barId = (await params).bar_id;
+
+	const from = (await searchParams).from;
+
+	return constructMetadata({
+		image: `https://liars-pub.vercel.app/api/og/${barId}${from != null ? `?from=${from}` : ""}`,
+	});
+}
 
 export default async function BarPage({
 	params,

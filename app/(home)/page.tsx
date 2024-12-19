@@ -6,6 +6,11 @@ import { CardType } from "../types";
 import { Input } from "@/components/ui/input";
 import { DoorOpenIcon, DoorClosedIcon } from "lucide-react";
 import Link from "next/link";
+import { constructMetadata } from "@/lib/utils";
+
+export async function generateMetadata() {
+	return constructMetadata();
+}
 
 export default async function Home() {
 	return (
@@ -17,7 +22,7 @@ export default async function Home() {
 				<div className="absolute left-[20px] top-0">
 					<PixelCard type={"back"} />
 				</div>
-				<div className="absolute left-[40px] transform rotate-12">
+				<div className="absolute left-[40px] transform rotate-12 ">
 					<PixelCard type={CardType.King} />
 				</div>
 			</div>

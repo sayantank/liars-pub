@@ -2,6 +2,7 @@ import { AVATARS } from "@/app/consts";
 import { CardType, type Bar } from "@/app/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { Metadata } from "next";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -68,4 +69,73 @@ export function getDeploymentUrl() {
 	const host = process.env.VERCEL_URL ?? "127.0.0.1:3000";
 	const protocol = host.startsWith("127.0.0.1") ? "http" : "https";
 	return `${protocol}://${host}`;
+}
+
+export function constructMetadata({
+	title = `Liar's Pub`,
+	description = `Liar's Pub is a browser-based card game of deception and strategy. Challenge your friends in this thrilling game of bluffing, where players can play cards face down and make false claims. Test your ability to spot lies and outsmart your opponents!`,
+	image = "https://liars-pub.vercel.app/api/og",
+	icons = [
+		{
+			rel: "apple-touch-icon",
+			sizes: "32x32",
+			url: "https://liars-pub.vercel.com/public/apple-icon.png",
+		},
+		// {
+		// 	rel: "icon",
+		// 	type: "image/png",
+		// 	sizes: "32x32",
+		// 	url: "https://assets.dub.co/favicons/favicon-32x32.png",
+		// },
+		// {
+		// 	rel: "icon",
+		// 	type: "image/png",
+		// 	sizes: "16x16",
+		// 	url: "https://assets.dub.co/favicons/favicon-16x16.png",
+		// },
+	],
+	canonicalUrl,
+	noIndex = false,
+}: {
+	title?: string;
+	description?: string;
+	image?: string | null;
+	icons?: Metadata["icons"];
+	canonicalUrl?: string;
+	noIndex?: boolean;
+} = {}): Metadata {
+	return {
+		title,
+		description,
+		openGraph: {
+			title,
+			description,
+			...(image && {
+				images: image,
+			}),
+		},
+		twitter: {
+			title,
+			description,
+			...(image && {
+				card: "summary_large_image",
+				images: [image],
+			}),
+
+			creator: "@sayantanxyz",
+		},
+		icons,
+		metadataBase: new URL("https://liars-pub.vercel.app"),
+		...(canonicalUrl && {
+			alternates: {
+				canonical: canonicalUrl,
+			},
+		}),
+		...(noIndex && {
+			robots: {
+				index: false,
+				follow: false,
+			},
+		}),
+	};
 }
