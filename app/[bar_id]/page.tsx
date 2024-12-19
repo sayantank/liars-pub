@@ -7,14 +7,17 @@ import { MAX_PLAYERS } from "@/app/consts";
 import BarProviderV2 from "@/components/bar-v2/provider";
 import { barSchema } from "@/lib/zod";
 import { constructMetadata } from "@/lib/utils";
+import type { Metadata, ResolvingMetadata } from "next";
 
-export async function generateMetadata({
-	params,
-	searchParams,
-}: {
+type Props = {
 	params: Promise<{ bar_id: string }>;
 	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
+};
+
+export async function generateMetadata(
+	{ params, searchParams }: Props,
+	_: ResolvingMetadata,
+): Promise<Metadata> {
 	const barId = (await params).bar_id;
 
 	const from = (await searchParams).from;

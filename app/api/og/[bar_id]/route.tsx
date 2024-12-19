@@ -57,7 +57,7 @@ export async function GET(
 				</div>
 				<h1 tw="text-2xl mb-0 mt-6">{liarsPub}</h1>
 				<h2 tw="text-8xl m-0 ">{bar_id}</h2>
-				<p tw="text-xl mt-6">{joinMessage}</p>
+				<p tw="text-2xl mt-6">{joinMessage}</p>
 			</div>,
 			{
 				width: 1200,
