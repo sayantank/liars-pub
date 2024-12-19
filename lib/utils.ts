@@ -65,12 +65,6 @@ export function chunk<T>(arr: T[], size: number): T[][] {
 	}, [] as T[][]);
 }
 
-export function getDeploymentUrl() {
-	const host = process.env.VERCEL_URL ?? "127.0.0.1:3000";
-	const protocol = host.startsWith("127.0.0.1") ? "http" : "https";
-	return `${protocol}://${host}`;
-}
-
 export function constructMetadata({
 	title = `Liar's Pub`,
 	description = `Liar's Pub is a browser-based card game of deception and strategy. Challenge your friends in this thrilling game of bluffing, where players can play cards face down and make false claims. Test your ability to spot lies and outsmart your opponents!`,
