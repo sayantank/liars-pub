@@ -36,7 +36,9 @@ export default function ActionSection({ barId }: { barId: string }) {
 		}
 
 		try {
-			await navigator.clipboard.writeText(`${window.location.origin}/${barId}`);
+			await navigator.clipboard.writeText(
+				`${window.location.origin}/${barId}?from=${player.nickname}`,
+			);
 			setIsCopied(true);
 			setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
 		} catch (err) {
