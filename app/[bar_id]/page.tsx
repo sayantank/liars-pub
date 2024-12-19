@@ -22,9 +22,7 @@ export async function generateMetadata(
 
 	const from = (await searchParams).from;
 
-	return constructMetadata({
-		image: "https://liars-pub.vercel.app/api/og/xyzjd?from=sayantan",
-	});
+	return constructMetadata();
 }
 
 export default async function BarPage({
