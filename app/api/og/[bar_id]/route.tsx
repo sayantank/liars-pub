@@ -39,7 +39,7 @@ export async function GET(
 		const liarsPub = "Liar's Pub";
 
 		const joinMessage = hasFrom
-			? `${fromNickname} is inviting you to join his pub`
+			? `${fromNickname} is inviting you to join their pub`
 			: "";
 
 		return new ImageResponse(
