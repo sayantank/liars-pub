@@ -30,6 +30,7 @@ import {
 	getRandomNumber,
 } from "@/lib/utils";
 import { avatarSchema, barSchema } from "@/lib/zod";
+import { getRedisKey } from "@/redis";
 import type * as Party from "partykit/server";
 import { animals, uniqueNamesGenerator } from "unique-names-generator";
 
@@ -115,7 +116,7 @@ export default class Server implements Party.Server {
 			const message = clientMessageSchema.parse(JSON.parse(rawMessage));
 			switch (message.type) {
 				case "startGame": {
-					this.startGame();
+					await this.startGame();
 					break;
 				}
 				case "chat": {
@@ -135,7 +136,7 @@ export default class Server implements Party.Server {
 					break;
 				}
 				case "newRound": {
-					this.newRound();
+					await this.newRound();
 					break;
 				}
 				case "changeAvatar": {
@@ -364,7 +365,7 @@ export default class Server implements Party.Server {
 		this.bar.roulette.status = RouletteStatus.Dead;
 	}
 
-	newRound() {
+	async newRound() {
 		if (
 			this.bar == null ||
 			this.bar.turnSequence == null ||
@@ -380,6 +381,7 @@ export default class Server implements Party.Server {
 
 		// If only one player is remaining, he/she is the winner
 		if (this.bar.turnSequence.length === 1) {
+			await this._trackFinishGame();
 			this.bar = {
 				id: this.bar.id,
 				isStarted: false,
@@ -456,7 +458,7 @@ export default class Server implements Party.Server {
 		this.bar.players[playerIndex].nickname = message.data.nickname;
 	}
 
-	startGame() {
+	async startGame() {
 		if (this.bar == null) {
 			return;
 		}
@@ -468,8 +470,7 @@ export default class Server implements Party.Server {
 			return;
 		}
 
-		// Reset the winner
-		this.bar.winner = null;
+		await this._trackStartGame();
 
 		// Set the table type
 		this.bar.tableType = this._getRandomCardType();
@@ -639,6 +640,48 @@ export default class Server implements Party.Server {
 			[array[i], array[j]] = [array[j], array[i]];
 		}
 		return array;
+	}
+
+	async _trackStartGame() {
+		const redisKey = getRedisKey("starts");
+
+		const response = await fetch(
+			`${process.env.UPSTASH_REDIS_URL}/incr/${redisKey}`,
+			{
+				headers: {
+					Authorization: `Bearer ${process.env.UPSTASH_REDIS_TOKEN}`,
+				},
+			},
+		);
+
+		if (!response.ok) {
+			console.error({
+				status: response.status,
+				body: await response.text(),
+			});
+			return;
+		}
+	}
+
+	async _trackFinishGame() {
+		const redisKey = getRedisKey("finishs");
+
+		const response = await fetch(
+			`${process.env.UPSTASH_REDIS_URL}/incr/${redisKey}`,
+			{
+				headers: {
+					Authorization: `Bearer ${process.env.UPSTASH_REDIS_TOKEN}`,
+				},
+			},
+		);
+
+		if (!response.ok) {
+			console.error({
+				status: response.status,
+				body: await response.text(),
+			});
+			return;
+		}
 	}
 }
 

@@ -53,7 +53,7 @@ export default function Header() {
 					</>
 				) : (
 					<>
-						Bar ID: <span className="font-semibold">{bar.id}</span>
+						Pub ID: <span className="font-semibold">{bar.id}</span>
 						<button
 							type="button"
 							className="ml-2 inline"
