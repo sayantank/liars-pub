@@ -53,6 +53,14 @@ export default async function Home() {
 					</p>
 				</Link>
 			</div>
+			<div className="absolute bottom-0 w-full h-10 border-t-2 border-primary flex items-center justify-center">
+				<p>
+					something by{" "}
+					<Link href="https://x.com/sayantanxyz" target="__blank">
+						<span className="font-bold hover:underline">sayantan ㋡</span>
+					</Link>
+				</p>
+			</div>
 		</>
 	);
 }
