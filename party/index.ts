@@ -351,16 +351,12 @@ export default class Server implements Party.Server {
 		const turnSequenceIndex = this.bar.turnSequence.findIndex(
 			(nickname) => nickname === message.data.playerNickname,
 		);
-		if (turnSequenceIndex === -1) {
-			console.error("Player not found in turn sequence", {
-				playerNickname: message.data.playerNickname,
-				turnSequence: this.bar.turnSequence,
-				room: this.room.id,
-			});
-			return;
-		}
 
-		this.bar.turnSequence.splice(turnSequenceIndex, 1);
+		// It is possible that the player is already removed from the turnSequence
+		// This happens when the player plays his last card
+		if (turnSequenceIndex !== -1) {
+			this.bar.turnSequence.splice(turnSequenceIndex, 1);
+		}
 
 		this.bar.roulette.status = RouletteStatus.Dead;
 	}
@@ -444,6 +440,17 @@ export default class Server implements Party.Server {
 			return;
 		}
 
+		const existingPlayer = this.bar.players.find(
+			(p) => p.nickname === message.data.nickname,
+		);
+		if (existingPlayer != null) {
+			console.error("Nickname already taken", {
+				nickname: message.data.nickname,
+				room: this.room.id,
+			});
+			return;
+		}
+
 		const playerIndex = this.bar.players.findIndex(
 			(p) => p.id === message.data.playerId,
 		);
@@ -471,6 +478,8 @@ export default class Server implements Party.Server {
 		}
 
 		await this._trackStartGame();
+
+		this.bar.winner = null;
 
 		// Set the table type
 		this.bar.tableType = this._getRandomCardType();

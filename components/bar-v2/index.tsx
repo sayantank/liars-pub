@@ -32,11 +32,11 @@ export default function BarUIV2() {
 				))}
 			</div>
 			{bar.turn?.playerNickname === player.nickname && (
-				<div className="h-8 sm:h-10 border-t-2 border-primary flex items-center justify-center">
-					<p>It's your turn</p>
+				<div className="h-8 sm:h-10 border-t-2 border-primary -z-10 flex items-center justify-center animate-slide-up">
+					<p className="font-semibold">It's your turn</p>
 				</div>
 			)}
-			<div className="h-[120px] sm:h-[180px] w-full border-t-2 border-primary flex items-center justify-center">
+			<div className="h-[120px] sm:h-[180px] w-full border-t-2 border-primary bg-background flex items-center justify-center">
 				{!bar.isStarted ? (
 					<Button
 						size={isMobile ? "sm" : "default"}

@@ -94,6 +94,10 @@ function PlayerNickname({ player }: { player: Player }) {
 		return nicknameRegex.test(nickname);
 	}, [nickname]);
 
+	const isNicknameTaken = useMemo(() => {
+		return bar.players.find((p) => p.nickname === nickname) != null;
+	}, [bar.players, nickname]);
+
 	const canEdit = !bar.isStarted && currentPlayer.nickname === player.nickname;
 
 	function handleEditNickname(e: React.FormEvent<HTMLFormElement>) {
@@ -149,13 +153,20 @@ function PlayerNickname({ player }: { player: Player }) {
 											value={nickname}
 											onChange={(e) => setNickname(e.target.value)}
 											className={
-												!isValidNickname && nickname ? "border-red-500" : ""
+												(!isValidNickname || isNicknameTaken) && nickname
+													? "border-red-500"
+													: ""
 											}
 										/>
 										{!isValidNickname && nickname && (
 											<p className="text-xs text-red-500">
 												Nickname can only contain letters, numbers, underscores,
 												and hyphens
+											</p>
+										)}
+										{isNicknameTaken && (
+											<p className="text-xs text-red-500">
+												Nickname is already taken
 											</p>
 										)}
 									</div>

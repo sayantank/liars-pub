@@ -19,18 +19,18 @@ export default function RulesPage() {
 				>
 					Go back
 				</button>
-				<h1 className="text-xl font-bold">Welcome to Liar's Pub! 🍺</h1>
+				<h1 className="text-xl font-bold">Welcome to Liar's Pub 🍺</h1>
 			</div>
 			<p>
 				Ready to test your poker face? In Liar's Pub, deception is your best
 				friend! Bluff your way to victory by playing cards face down and
 				outsmarting your opponents. Will they call your bluff, or will you fool
-				them all? 🎭
+				them all?
 			</p>
 			<div className="space-y-6">
 				<h2 className="text-lg font-medium underline">The Setup</h2>
 				<div>
-					<p>Here's what you're playing with:</p>
+					<p>Your deck consists of:</p>
 					<div className="flex items-center space-x-4 justify-center my-6">
 						<div className="space-y-2 flex flex-col items-center">
 							<PixelCard height={84} width={60} type={CardType.Ace} />
@@ -51,9 +51,8 @@ export default function RulesPage() {
 					</div>
 					<p className="mt-4">
 						You'll start with <span className="font-semibold">5 cards</span> in
-						your hand. Pro tip: Those sneaky{" "}
-						<span className="font-semibold">Jokers</span> are wild cards - use
-						them wisely! 😉
+						your hand. Remember: <span className="font-semibold">Jokers</span>{" "}
+						are wild cards - they can be played as any card.
 					</p>
 				</div>
 			</div>
@@ -62,9 +61,8 @@ export default function RulesPage() {
 
 				<div className="space-y-2">
 					<p>
-						<span className="font-semibold">1.</span> Each round starts with a
-						special "liar's card" - that's what everyone will be claiming to
-						play!
+						<span className="font-semibold">1.</span> Each round begins with a
+						"liar's card" - this is what everyone must claim to play.
 					</p>
 					<div className="h-8 sm:h-10 border-2 border-primary flex items-center justify-between px-4">
 						<h1 className="text-sm sm:text-lg">
@@ -75,27 +73,24 @@ export default function RulesPage() {
 
 				<p>
 					<span className="font-semibold">2.</span> On your turn, play 1-3 cards
-					face down. For example, if you say{" "}
-					<span className="font-semibold">"2 Aces"</span>, everyone better
-					believe you... or should they? 🤔
+					face down. When you declare{" "}
+					<span className="font-semibold">"2 Aces"</span>, the other players
+					must decide whether to trust you.
 				</p>
 
 				<div className="space-y-2">
 					<p>
-						<span className="font-semibold">3.</span> When someone plays, you've
-						got two choices:
+						<span className="font-semibold">3.</span> After someone plays, you
+						have two options:
 					</p>
 					<ul className="list-disc pl-8 space-y-2">
-						<li>Trust them (or pretend to!) and take your turn</li>
+						<li>Trust them (or atleast pretend to) and take your turn</li>
 						<div className="w-full flex items-center font-bold">OR</div>
 						<li>
-							Shout "LIAR!" and call their bluff! 🎯
+							Call "LIAR!" and call their bluff
 							<ul className="list-disc pl-8 space-y-2 mt-2">
-								<li>Caught them lying? They face the death roulette! 💀</li>
-								<li>
-									Wrong accusation? Uh-oh, you're facing the roulette instead!
-									😱
-								</li>
+								<li>If they lied: They face the death roulette</li>
+								<li>If they were honest: You face the roulette</li>
 							</ul>
 						</li>
 					</ul>
@@ -105,7 +100,7 @@ export default function RulesPage() {
 					<p>
 						<span className="font-semibold">4.</span> The{" "}
 						<span className="font-bold">Death Roulette</span> - Pick a number
-						and pray for luck! Choose wisely, your life depends on it... 🎲
+						and pray for luck! Choose wisely, because your life depends on it...
 					</p>
 					<div className="border-2 border-primary flex items-center justify-evenly p-4">
 						{Array.from({ length: 6 }).map((_, index) => (
@@ -123,9 +118,8 @@ export default function RulesPage() {
 				</div>
 
 				<p>
-					<span className="font-semibold">5.</span> Last player standing wins
-					the crown and eternal glory! 👑 Do you have what it takes to become
-					the ultimate Liar's Pub champion?
+					<span className="font-semibold">5.</span> The last player standing
+					claims the crown 👑 and becomes the winner of the Liar's Pub.
 				</p>
 			</div>
 		</div>
