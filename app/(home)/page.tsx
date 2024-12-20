@@ -15,18 +15,18 @@ export async function generateMetadata() {
 export default async function Home() {
 	return (
 		<>
-			<div className="relative h-[150px] w-[140px] mb-4">
+			<div className="relative h-[185px] w-[160px] mb-4">
 				<div className="absolute left-0 transform -rotate-12">
-					<PixelCard type={"back"} />
+					<PixelCard type={"back"} height={175} width={125} />
 				</div>
 				<div className="absolute left-[20px] top-0">
-					<PixelCard type={"back"} />
+					<PixelCard type={"back"} height={175} width={125} />
 				</div>
 				<div className="absolute left-[40px] transform rotate-12 ">
-					<PixelCard type={CardType.King} />
+					<PixelCard type={CardType.King} height={175} width={125} />
 				</div>
 			</div>
-			<h1 className="text-xl mb-8">Liar's Pub</h1>
+			<h1 className="text-3xl font-medium mb-8">Liar's Pub</h1>
 			<div className="flex flex-col items-stretch space-y-4">
 				<form action={createBar}>
 					<Button type="submit" className="w-full">

@@ -69,10 +69,13 @@ export default function RulesPage() {
 				<div className="space-y-2">
 					<p>
 						<span className="font-semibold">1.</span> At the beginning of each
-						round, the game assigns the "liar's card" type for the round.
+						round, the game assigns the "liar's card" type for the round, as
+						shown below.
 					</p>
 					<div className="h-8 sm:h-10 border-2 border-primary flex items-center justify-between px-4">
-						<h1 className="text-xs sm:text-sm">Ace's Table</h1>
+						<h1 className="text-sm sm:text-lg">
+							<span className="font-bold">Ace's</span> Table
+						</h1>
 					</div>
 				</div>
 
@@ -86,12 +89,13 @@ export default function RulesPage() {
 				<div className="space-y-2">
 					<p>
 						<span className="font-semibold">3.</span> The next player can choose
-						to:
+						to do <span className="underline">one of two things</span>:
 					</p>
 					<ul className="list-disc pl-8 space-y-2">
 						<li>
 							Believe the previous player's statement and play their own cards
 						</li>
+						<div className="w-full flex items-center font-bold">OR</div>
 						<li>
 							Challenge the previous player's play (Call Liar!), indicating "I
 							don't believe you just played{" "}
@@ -101,14 +105,15 @@ export default function RulesPage() {
 								<li>
 									If the previous player didn't play 2 cards (e.g.,{" "}
 									<span className="font-semibold">0 Aces</span>), the challenge
-									is successful, and the previous player undergoes a death
-									roulette judgment;
+									is successful, and the previous player undergoes the{" "}
+									<span className="underline">death roulette judgment</span>
 								</li>
 								<li>
 									If the previous player indeed played{" "}
 									<span className="font-semibold">2 Aces</span> (including
 									Jokers), the challenge fails, and the challenging player
-									undergoes a death roulette judgment;
+									undergoes the{" "}
+									<span className="underline">death roulette judgment</span>
 								</li>
 							</ul>
 						</li>
@@ -117,9 +122,10 @@ export default function RulesPage() {
 
 				<div className="space-y-2">
 					<p>
-						<span className="font-semibold">4.</span> Death roulette judgment
-						means firing the gun at oneself. We simulate this by making the
-						player choose a number from 1 to the number of lives left.
+						<span className="font-semibold">4.</span>{" "}
+						<span className="font-bold">Death roulette judgment</span> means
+						firing the gun at oneself. We simulate this by making the player
+						choose a number from 1 to the number of lives left.
 					</p>
 					<div className="border-2 border-primary flex items-center justify-evenly p-4">
 						{Array.from({ length: 6 }).map((_, index) => (
@@ -138,7 +144,8 @@ export default function RulesPage() {
 
 				<p>
 					<span className="font-semibold">5.</span> The game continues until
-					only one player remains, who becomes the winner.
+					only one player remains, who becomes the winner!{" "}
+					<span className="text-xl">👑</span>
 				</p>
 			</div>
 		</div>
