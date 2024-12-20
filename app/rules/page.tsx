@@ -11,15 +11,15 @@ export default function RulesPage() {
 	const router = useRouter();
 	return (
 		<div className="h-full flex flex-col space-y-8 px-4 sm:px-6 py-10 sm:py-8 overflow-y-auto no-scrollbar">
-			<div className="flex w-full items-center justify-between">
-				<h1 className="text-xl font-bold">Welcome to Liar's Pub! 🍺</h1>
+			<div className="flex flex-col sm:flex-row-reverse w-full sm:items-center sm:justify-between space-y-2 sm:space-y-0">
 				<button
 					type="button"
-					className="hover:underline text-gray-500"
+					className="hover:underline text-gray-500 max-w-fit"
 					onClick={() => router.back()}
 				>
 					Go back
 				</button>
+				<h1 className="text-xl font-bold">Welcome to Liar's Pub! 🍺</h1>
 			</div>
 			<p>
 				Ready to test your poker face? In Liar's Pub, deception is your best
