@@ -68,12 +68,12 @@ export function chunk<T>(arr: T[], size: number): T[][] {
 export function constructMetadata({
 	title = `Liar's Pub`,
 	description = `Liar's Pub is a browser-based card game of deception and strategy. Challenge your friends in this thrilling game of bluffing, where players can play cards face down and make false claims. Test your ability to spot lies and outsmart your opponents!`,
-	image = "https://liarspub.com/public/thumbnail.png",
+	image = "https://liarspub.com/thumbnail.png",
 	icons = [
 		{
 			rel: "apple-touch-icon",
 			sizes: "32x32",
-			url: "https://liarspub.com/public/apple-icon.png",
+			url: "https://liarspub.com/apple-icon.png",
 		},
 		// {
 		// 	rel: "icon",
