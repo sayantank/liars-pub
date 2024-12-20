@@ -68,12 +68,12 @@ export function chunk<T>(arr: T[], size: number): T[][] {
 export function constructMetadata({
 	title = `Liar's Pub`,
 	description = `Liar's Pub is a browser-based card game of deception and strategy. Challenge your friends in this thrilling game of bluffing, where players can play cards face down and make false claims. Test your ability to spot lies and outsmart your opponents!`,
-	image = "https://liars-pub.vercel.app/api/og",
+	image = "https://liarspub.com/public/thumbnail.png",
 	icons = [
 		{
 			rel: "apple-touch-icon",
 			sizes: "32x32",
-			url: "https://liars-pub.vercel.com/public/apple-icon.png",
+			url: "https://liarspub.com/public/apple-icon.png",
 		},
 		// {
 		// 	rel: "icon",
@@ -119,7 +119,7 @@ export function constructMetadata({
 			creator: "@sayantanxyz",
 		},
 		icons,
-		metadataBase: new URL("https://liars-pub.vercel.app"),
+		metadataBase: new URL("https://liarspub.com"),
 		...(canonicalUrl && {
 			alternates: {
 				canonical: canonicalUrl,
@@ -131,5 +131,14 @@ export function constructMetadata({
 				follow: false,
 			},
 		}),
+		keywords: [
+			"liars bar",
+			"liars pub",
+			"deception",
+			"strategy",
+			"game",
+			"friends",
+			"card game",
+		],
 	};
 }
