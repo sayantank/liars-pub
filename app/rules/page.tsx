@@ -12,7 +12,7 @@ export default function RulesPage() {
 	return (
 		<div className="h-full flex flex-col space-y-8 px-4 sm:px-6 py-10 sm:py-8 overflow-y-auto no-scrollbar">
 			<div className="flex w-full items-center justify-between">
-				<h1 className="text-xl font-bold">How to play?</h1>
+				<h1 className="text-xl font-bold">Welcome to Liar's Pub! 🍺</h1>
 				<button
 					type="button"
 					className="hover:underline text-gray-500"
@@ -22,19 +22,15 @@ export default function RulesPage() {
 				</button>
 			</div>
 			<p>
-				Liar's Pub is a card game that focuses on playing cards and deception.
-				Players can play cards face down and are allowed to make false
-				statements about the cards they've played. The core of the game lies in
-				the psychological warfare between players and judging whether opponents
-				are lying.
+				Ready to test your poker face? In Liar's Pub, deception is your best
+				friend! Bluff your way to victory by playing cards face down and
+				outsmarting your opponents. Will they call your bluff, or will you fool
+				them all? 🎭
 			</p>
 			<div className="space-y-6">
-				<h2 className="text-lg font-medium underline">Game Setting</h2>
+				<h2 className="text-lg font-medium underline">The Setup</h2>
 				<div>
-					<p>
-						The game starts with a deck of cards containing{" "}
-						<span className="font-semibold">20 cards</span>, consisting of,
-					</p>
+					<p>Here's what you're playing with:</p>
 					<div className="flex items-center space-x-4 justify-center my-6">
 						<div className="space-y-2 flex flex-col items-center">
 							<PixelCard height={84} width={60} type={CardType.Ace} />
@@ -53,24 +49,22 @@ export default function RulesPage() {
 							<p>x 2</p>
 						</div>
 					</div>
-					<p>
-						Each player starts with <span className="font-semibold">5</span>{" "}
-						randomly selected cards from the deck.
+					<p className="mt-4">
+						You'll start with <span className="font-semibold">5 cards</span> in
+						your hand. Pro tip: Those sneaky{" "}
+						<span className="font-semibold">Jokers</span> are wild cards - use
+						them wisely! 😉
 					</p>
 				</div>
-				<p>
-					And <span className="font-semibold">Jokers</span> can substitute for
-					any other type of card.
-				</p>
 			</div>
 			<div className="space-y-6">
-				<h2 className="text-lg font-medium underline">Gameplay</h2>
+				<h2 className="text-lg font-medium underline">How to Play</h2>
 
 				<div className="space-y-2">
 					<p>
-						<span className="font-semibold">1.</span> At the beginning of each
-						round, the game assigns the "liar's card" type for the round, as
-						shown below.
+						<span className="font-semibold">1.</span> Each round starts with a
+						special "liar's card" - that's what everyone will be claiming to
+						play!
 					</p>
 					<div className="h-8 sm:h-10 border-2 border-primary flex items-center justify-between px-4">
 						<h1 className="text-sm sm:text-lg">
@@ -80,40 +74,27 @@ export default function RulesPage() {
 				</div>
 
 				<p>
-					<span className="font-semibold">2.</span> Players take turns playing
-					cards, 1-3 cards each time. For example, throw out{" "}
-					<span className="font-semibold">2 cards</span> means the player claims
-					to have played <span className="font-semibold">2 Aces</span>
+					<span className="font-semibold">2.</span> On your turn, play 1-3 cards
+					face down. For example, if you say{" "}
+					<span className="font-semibold">"2 Aces"</span>, everyone better
+					believe you... or should they? 🤔
 				</p>
 
 				<div className="space-y-2">
 					<p>
-						<span className="font-semibold">3.</span> The next player can choose
-						to do <span className="underline">one of two things</span>:
+						<span className="font-semibold">3.</span> When someone plays, you've
+						got two choices:
 					</p>
 					<ul className="list-disc pl-8 space-y-2">
-						<li>
-							Believe the previous player's statement and play their own cards
-						</li>
+						<li>Trust them (or pretend to!) and take your turn</li>
 						<div className="w-full flex items-center font-bold">OR</div>
 						<li>
-							Challenge the previous player's play (Call Liar!), indicating "I
-							don't believe you just played{" "}
-							<span className="font-semibold">2 Aces</span>". Then the system
-							reveals the pile to verify.
+							Shout "LIAR!" and call their bluff! 🎯
 							<ul className="list-disc pl-8 space-y-2 mt-2">
+								<li>Caught them lying? They face the death roulette! 💀</li>
 								<li>
-									If the previous player didn't play 2 cards (e.g.,{" "}
-									<span className="font-semibold">0 Aces</span>), the challenge
-									is successful, and the previous player undergoes the{" "}
-									<span className="underline">death roulette judgment</span>
-								</li>
-								<li>
-									If the previous player indeed played{" "}
-									<span className="font-semibold">2 Aces</span> (including
-									Jokers), the challenge fails, and the challenging player
-									undergoes the{" "}
-									<span className="underline">death roulette judgment</span>
+									Wrong accusation? Uh-oh, you're facing the roulette instead!
+									😱
 								</li>
 							</ul>
 						</li>
@@ -122,10 +103,9 @@ export default function RulesPage() {
 
 				<div className="space-y-2">
 					<p>
-						<span className="font-semibold">4.</span>{" "}
-						<span className="font-bold">Death roulette judgment</span> means
-						firing the gun at oneself. We simulate this by making the player
-						choose a number from 1 to the number of lives left.
+						<span className="font-semibold">4.</span> The{" "}
+						<span className="font-bold">Death Roulette</span> - Pick a number
+						and pray for luck! Choose wisely, your life depends on it... 🎲
 					</p>
 					<div className="border-2 border-primary flex items-center justify-evenly p-4">
 						{Array.from({ length: 6 }).map((_, index) => (
@@ -143,9 +123,9 @@ export default function RulesPage() {
 				</div>
 
 				<p>
-					<span className="font-semibold">5.</span> The game continues until
-					only one player remains, who becomes the winner!{" "}
-					<span className="text-xl">👑</span>
+					<span className="font-semibold">5.</span> Last player standing wins
+					the crown and eternal glory! 👑 Do you have what it takes to become
+					the ultimate Liar's Pub champion?
 				</p>
 			</div>
 		</div>
