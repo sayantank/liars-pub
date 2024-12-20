@@ -34,19 +34,19 @@ export default function RulesPage() {
 					<div className="flex items-center space-x-4 justify-center my-6">
 						<div className="space-y-2 flex flex-col items-center">
 							<PixelCard height={84} width={60} type={CardType.Ace} />
-							<p>x 6</p>
+							<p className="text-lg font-bold">x 6</p>
 						</div>
 						<div className="space-y-2 flex flex-col items-center">
 							<PixelCard height={84} width={60} type={CardType.King} />
-							<p>x 6</p>
+							<p className="text-lg font-bold">x 6</p>
 						</div>
 						<div className="space-y-2 flex flex-col items-center">
 							<PixelCard height={84} width={60} type={CardType.Queen} />
-							<p>x 6</p>
+							<p className="text-lg font-bold">x 6</p>
 						</div>
 						<div className="space-y-2 flex flex-col items-center">
 							<PixelCard height={84} width={60} type={CardType.Joker} />
-							<p>x 2</p>
+							<p className="text-lg font-bold">x 2</p>
 						</div>
 					</div>
 					<p className="mt-4">
